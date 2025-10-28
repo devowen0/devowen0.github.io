@@ -1,50 +1,283 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your Name | Portfolio</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #fafafa;
-      color: #222;
-      max-width: 700px;
-      margin: 50px auto;
-      padding: 0 20px;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quarter-Circle Animation with Text</title>
+<style>
+html, body {
+  min-height: 100%;
+  height: auto;
+  margin: 0;
+  display: flex;
+  flex-direction: column; /* stack items vertically */
+  justify-content: flex-start; /* start from top */
+  align-items: center; /* center horizontally */
+  background: linear-gradient(to bottom, #ffffff, #f0faff);
+  font-family: Arial, sans-serif;
+}
+
+.main-container {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-top: 5vh; /* push slightly down from top */
+}
+
+.text-container {
+  width: 36vmin; /* same width as animation grid (3 boxes * 12vmin) */
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: #333;
+  margin-right: 35px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 5px;
+  width: 36vmin; /* 3 boxes of 12vmin each */
+  height: 36vmin;
+}
+
+.box {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  width: 12vmin;
+  height: 12vmin;
+}
+
+.cell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quarter {
+  width: 100%;
+  height: 100%;
+  border-top-left-radius: 100%;
+  transform-origin: center;
+  transition: transform 2s ease-in-out, opacity 10s ease;
+}
+
+.fade {
+  opacity: 0;
+}
+
+.locked {
+  pointer-events: none;
+}
+.project-description {
+  width: calc(36vmin + 35px + 36vmin); /* same total width as text + animation */
+  max-width: 90vw;
+  text-align: left;
+  margin: 5vh auto;
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+.project-description h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+    .project-description p {
+      font-size: 1.1rem;
       line-height: 1.6;
-    }
-    h1, h2 {
-      color: #111;
-    }
-    a {
-      color: #007acc;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+}
+.project-description ul {
+  font-size: 1.1rem;      /* same as .project-description p */
+  line-height: 1.6;       /* match the paragraph spacing */
+  margin-top: 1rem;       /* small space above the list */
+  margin-left: 2rem;      /* indent for bullets */
+  color: #333;            /* same text color */
+}
+
+.project-description li {
+  margin-bottom: 0.5rem;  /* small space between bullets */
+}
+.project-image-text-width {
+  width: calc(36vmin + 35px + 36vmin); /* same as .text-container width */
+  max-width: 90vw;
+  margin: 3vh auto; /* space above and below */
+  text-align: center; /* center the image */
+}
+
+.project-image-text-width img {
+  width: 100%;   /* scale to container width */
+  height: auto;  /* maintain aspect ratio */
+  display: block;
+  border-radius: 8px; /* optional: nice rounded corners */
+}
+</style>
 </head>
 <body>
-  <h1>Your Name</h1>
-  <p><strong>Creative Python Developer</strong><br>
-  Open to Remote Work and Relocation to Sweden</p>
+<div class="main-container">
+  <div class="text-container">
+    <p>Hi! I’m a developer who is passionate about building intelligent, user-friendly applications that combine AI, data science, and great design. I also have a strong creative background in music production and graphic design.</p>
+  </div>
+  <div class="container" id="container"></div>
+</div>
 
-  <h2>About Me</h2>
-  <p>I’m a creative coder and data enthusiast who builds tools, visualizations, and experiments with Python. 
-     I enjoy combining design and technology to tell meaningful stories.</p>
+<script>
+const colors = ["#6C63FF", "#4ECDC4", "#FFD166", "#EF476F", "#073B4C"];
+const boxesPerSide = 3;
+const container = document.getElementById('container');
+const circlePattern = {tl: 0, tr: 90, br: 180, bl: 270};
 
-  <h2>Projects</h2>
+function getCorner(row, col){
+  return (row===0 && col===0)?"tl":
+         (row===0 && col===1)?"tr":
+         (row===1 && col===0)?"bl":"br";
+}
+
+function createQuarter(row, col){
+  const q = document.createElement('div');
+  q.classList.add('quarter');
+  q.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+  q.dataset.corner = getCorner(row,col);
+  q.dataset.rotation = Math.floor(Math.random()*4)*90;
+  q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+  return q;
+}
+
+function isFullCircle(quarters){
+  const block = [quarters[0][0], quarters[0][1], quarters[1][0], quarters[1][1]];
+  return block.every(q => Number(q.dataset.rotation) === circlePattern[q.dataset.corner]);
+}
+
+function createBox(){
+  const box = document.createElement('div');
+  box.classList.add('box');
+  const quarters = [[],[]];
+  let fading = false;
+
+  for(let r=0;r<2;r++){
+    quarters[r] = [];
+    for(let c=0;c<2;c++){
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      const q = createQuarter(r,c);
+      cell.appendChild(q);
+      box.appendChild(cell);
+      quarters[r][c] = q;
+    }
+  }
+
+  // Avoid initial circle
+  while(isFullCircle(quarters)){
+    const r = Math.floor(Math.random()*2);
+    const c = Math.floor(Math.random()*2);
+    const q = quarters[r][c];
+    q.dataset.rotation = (Number(q.dataset.rotation)+90)%360;
+    q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+  }
+
+  // Spin each quarter independently at random intervals (2-15s)
+  function spinQuarterIndependently(q){
+    if(!q.classList.contains('locked')){
+      q.dataset.rotation = (Number(q.dataset.rotation)+90)%360;
+      q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+    }
+    const nextInterval = Math.random()*25000 + 4000; // 2-15 seconds
+    setTimeout(()=>spinQuarterIndependently(q), nextInterval);
+  }
+
+  quarters.flat().forEach(q => spinQuarterIndependently(q));
+
+  // Check for full circle and replace
+  function checkAndReplaceCircles(){
+    if(!fading && isFullCircle(quarters)){
+      fading = true;
+      const block = [quarters[0][0], quarters[0][1], quarters[1][0], quarters[1][1]];
+      block.forEach(q => q.classList.add('fade','locked'));
+
+      setTimeout(()=>{
+        block.forEach((q,i)=>{
+          const row = Math.floor(i/2);
+          const col = i%2;
+          const newQ = createQuarter(row,col);
+          quarters[row][col].parentNode.replaceChild(newQ, quarters[row][col]);
+          quarters[row][col] = newQ;
+          spinQuarterIndependently(newQ);
+        });
+        fading = false;
+      },10000);
+    }
+    requestAnimationFrame(checkAndReplaceCircles);
+  }
+
+  checkAndReplaceCircles();
+  return box;
+}
+
+// Create 3x3 boxes
+for(let i=0;i<boxesPerSide*boxesPerSide;i++){
+  container.appendChild(createBox());
+}
+</script>
+<div class="project-description">
+  <h1>AI Tech Support Chat Project</h1>
+  <p>
+    I made a tech support AI chatbot that uses PySide6 for the window, and is powered by Ollama and DeepSeek.
+    It provides a smooth chat experience and is very knowledgeable, and has features that improve the UX such as
+    light mode and dark mode, typing animations, and markdown-formatted AI responses.
+    It also gives users the option to be able to switch models, where for example, they could switch to something like
+    mistral:7b, which would run entirely locally and therefore guarantee confidentiality.
+  </p>
+  <p>
+  It also handles various edge cases, such as:
+  </p>
   <ul>
-    <li><a href="https://github.com/yourusername/project1">Project 1</a> – Short description of what it does.</li>
-    <li><a href="https://github.com/yourusername/project2">Project 2</a> – Short description here.</li>
-    <li><a href="https://github.com/yourusername/project3">Project 3</a> – Short description here.</li>
+    <li>The user going off topic</li>
+    <li>Empty user inputs</li>
+    <li>Timeouts</li>
+    <li>Malformed or unusual output</li>
+    <li>Avoiding crashing through keeping heavy calls in a background thread separate from the GUI</li>
+    <li>Preventing lost keystrokes from the input box being unfocused</li>
   </ul>
-
-  <h2>Contact</h2>
-  <p>Email: <a href="mailto:youremail@example.com">youremail@example.com</a><br>
-     LinkedIn: <a href="https://linkedin.com/in/yourusername">linkedin.com/in/yourusername</a><br>
-     GitHub: <a href="https://github.com/yourusername">github.com/yourusername</a></p>
+  <p>
+    You can view this project <a href="https://github.com/devowen0/tech-support-chat" target="_blank" rel="noopener noreferrer">here</a>.
+  </p>
+</div>
+<div class="project-image-text-width">
+  <img src="" alt="Tech Support" />
+</div>
+<div class="project-description">
+  <h1>Lead Scoring & Predictive Marketing Automation Project</h1>
+  <p>
+  I made a lead scoring and marketing automation system in order to help sales teams prioritize high-value leads and optimize follow-up campaigns, through the combination of data science techniques, machine learning and process automation to simulate a realistic marketing workflow. The project combines predictive modeling with operational scheduling logic to generate a complete lead engagement plan.
+  </p>
+  <p>
+  I used logistical regression, data normalization and dynamic weighting in order to determine lead scores, and then was able to create actionable solutions based off of this data, including personalized follow-up timelines and promotional scheduling.
+  </p>
+  <p>
+    You can view this project <a href="https://github.com/devowen0/lead-scoring-predictive-marketing" target="_blank" rel="noopener noreferrer">here</a>.
+  </p>
+</div>
+<div class="project-description">
+  <h1>Recipe App Project</h1>
+  <p>
+  I created an app using PySide6 that analyzes recipe data from a dataset called TidyTuesday. It analyzes recipe data in a CSV file with 14,000 recipes, and will recommend recipes to the user based off of the ratings and reviews of those recipes, and will also personalize the recommendations to the user based off of their saved recipes and which recipes they view. It uses a Bayesian rating system and keyword boosting to accomplish this. It also has features that boost the UX including:
+  </p>
+  <ul>
+    <li>Autocompleting searches</li>
+    <li>Using requests + BeautifulSoup to add images</li>
+    <li>Interactive, collapsible GUI</li>
+    <li>Recommending new recipes every time, based off of user data</li>
+    <li>Save favorite recipes locally</li>
+    <li>Lightweight with no internet required</li>
+  </ul>
+  <p>
+    You can view this project <a href="https://github.com/devowen0/allrecipes-app" target="_blank" rel="noopener noreferrer">here</a>.
+  </p>
+</div>
 </body>
 </html>
