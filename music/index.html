@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quarter-Circle Animation with Text</title>
+<style>
+    .navbar {
+      width: 100%;
+      background-color: transparent;
+      box-shadow: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 1rem 0;
+      position: relative;
+      z-index: 1000;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar li {
+      font-weight: bold;
+    }
+
+    .navbar a {
+      text-decoration: none;
+      color: #333;
+      transition: color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .navbar a:hover {
+      color: #6C63FF;
+    }
+
+    /* Dropdown styling */
+    .dropdown {
+      position: relative;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    .dropdown-toggle {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dropdown-toggle:hover {
+      border-color: #6C63FF;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100%);
+      left: 0;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      z-index: 2000;
+    }
+
+    .dropdown-menu div {
+      padding: 0.5rem 0.8rem;
+      cursor: pointer;
+    }
+
+    .dropdown-menu div:hover {
+      background-color: #f0f0ff;
+    }
+
+    /* When open */
+    .dropdown.open .dropdown-menu {
+      display: block;
+    }
+
+    /* Small screen adjustments */
+    @media (max-width: 500px) {
+      .navbar ul {
+        gap: 1rem;
+      }
+      .navbar a, .dropdown-toggle {
+        font-size: 0.9rem;
+      }
+    }
+    html, body {
+      min-height: 100%;
+      height: auto;
+      margin: 0;
+      display: flex;
+      flex-direction: column; /* stack items vertically */
+      justify-content: flex-start; /* start from top */
+      align-items: center; /* center horizontally */
+      background: linear-gradient(to bottom, #ffffff, #f0faff);
+      font-family: Arial, sans-serif;
+    }
+
+        .main-container {
+          display: flex;
+          align-items: flex-start;
+          justify-content: center;
+          margin-top: 5vh;
+          width: 90vw;       /* leave 5% space on each side */
+          max-width: 1000px; /* optional, keeps it from getting too wide on desktop */
+        }
+        
+        .text-container {
+          width: 40vmin; /* desktop: fixed width matching animation grid */
+          margin-right: 35px;
+          font-size: 1.1rem;
+        }
+
+        .text-container p {
+          font-family: Arial, sans-serif;  /* same as .project-description */
+          font-size: 1.1rem;
+          line-height: 1.6;               /* same spacing as below */
+          color: #333;
+          text-align: left;
+          margin: 0;                       /* or margin-bottom: 1rem if needed */
+        }
+
+        @media (max-width: 500px) {
+          .text-container {
+            width: calc(66% - 10px); /* takes ~2/3 of width on mobile */
+            margin-right: 10px;       /* smaller margin for mobile */
+            margin-left: 1vmin;
+          }
+        }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 5px;
+      width: 40vmin; /* 3 boxes of 12vmin each */
+      height: 40vmin;
+    }
+
+    .box {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      width: 12vmin;
+      height: 12vmin;
+    }
+
+    .cell {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .quarter {
+      width: 100%;
+      height: 100%;
+      border-top-left-radius: 100%;
+      transform-origin: center;
+      transition: transform 2s ease-in-out, opacity 10s ease;
+    }
+
+    .fade {
+      opacity: 0;
+    }
+
+    .locked {
+      pointer-events: none;
+    }
+    .project-description {
+      width: calc(40vmin + 35px + 40vmin); /* same total width as text + animation */
+      max-width: 90vw;
+      text-align: left;
+      margin: 5vh auto;
+      color: #333;
+      font-family: Arial, sans-serif;
+    }
+
+    .project-description h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+        .project-description p {
+          font-size: 1.1rem;
+          line-height: 1.6;
+    }
+    .project-description ul {
+      font-size: 1.1rem;      /* same as .project-description p */
+      line-height: 1.6;       /* match the paragraph spacing */
+      margin-top: 1rem;       /* small space above the list */
+      margin-left: 2rem;      /* indent for bullets */
+      color: #333;            /* same text color */
+    }
+
+    .project-description li {
+      margin-bottom: 0.5rem;  /* small space between bullets */
+    }
+.project-image-text-width {
+  width: calc(36vmin + 35px + 36vmin); /* same as .text-container width */
+  max-width: 90vw;
+  margin: 3vh auto; /* space above and below */
+  text-align: center; /* center the image */
+}
+
+.project-image-text-width img {
+  width: 100%;   /* scale to container width */
+  height: auto;  /* maintain aspect ratio */
+  display: block;
+  border-radius: 8px; /* optional: nice rounded corners */
+}
+    /* Embed styling — one per row, centered, responsive */
+    .embed-container {
+      display: flex;
+      flex-direction: column; /* stack vertically */
+      align-items: center; /* center horizontally */
+      gap: 2rem; /* space between embeds */
+      margin-top: 2rem;
+    }
+
+    .embed-box {
+      width: 100%;
+      max-width: 700px; /* keeps them from being too wide on desktop */
+      text-align: center;
+    }
+
+    .embed-box iframe {
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+    }
+
+    .soundcloud-info {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      color: #333;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .embed-box {
+        max-width: 95%;
+      }
+    }
+    /* Image row layout for desktop */
+    .project-image-row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 3vw; /* space between images */
+      flex-wrap: wrap; /* allows stacking on small screens */
+      margin-top: 3vh;
+    }
+
+    /* Make individual image boxes smaller */
+    .project-image-text-width {
+      width: 30vmin; /* smaller than before */
+      text-align: center;
+    }
+
+    /* Caption styling */
+    .project-image-text-width p {
+      font-size: 0.95rem;
+      color: #555;
+      margin-top: 0.5rem;
+    }
+
+    /* Responsive: stack vertically on small screens */
+    @media (max-width: 768px) {
+      .project-image-row {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .project-image-text-width {
+        width: 70vw; /* take more width on mobile */
+      }
+    }
+    .social-footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;               /* space between icons */
+      margin: 3rem 0;          /* space above and below footer */
+    }
+
+    .social-footer a img {
+      width: 30px;             /* size of each icon */
+      height: 30px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .social-footer a img:hover {
+      transform: scale(1.2);   /* slight zoom on hover */
+      opacity: 0.8;            /* subtle fade effect */
+    }
+</style>
+</head>
+<body>
+    <nav class="navbar">
+      <ul>
+        <li><a href="/">About</a></li>
+        <li><a href="/music">Music</a></li>
+        <li><a href="/design">Design</a></li>
+        <li><a href="/cryptography">Cryptography</a></li>
+        <li>
+            <div class="dropdown">
+              <div class="dropdown-toggle" id="selected-lang">English ▾</div>
+              <div class="dropdown-menu" id="language-menu">
+                <div data-value="en">English</div>
+                <div data-value="sv">Svenska</div>
+              </div>
+            </div>
+
+            <script>
+              const menuItems = document.querySelectorAll('#language-menu div');
+              menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                  const lang = item.dataset.value; // "en" or "sv"
+
+                  // Set the custom path here
+                  let targetUrl;
+                  if (lang === 'en') {
+                    targetUrl = '/music';       // English page
+                  } else if (lang === 'sv') {
+                    targetUrl = '/music/sv';    // Swedish page
+                  }
+
+                  window.location.href = targetUrl;
+                });
+              });
+            </script>
+          </div>
+        </li>
+      </ul>
+    </nav>
+<div class="main-container">
+  <div class="text-container">
+    <p>I’ve produced electronic music under the name Tornicane for nine years, and over the last few years, maintained around 9,000 monthly listeners on Spotify and had releases on all major platforms. I produced, arranged and mastered over 50 tracks in genres like future bass and progressive house, totaling 2M+ streams on Spotify.</p>
+  </div>
+  <div class="container" id="container"></div>
+</div>
+
+<script>
+const colors = ["#6C63FF", "#4ECDC4", "#FFD166", "#EF476F", "#073B4C"];
+const boxesPerSide = 3;
+const container = document.getElementById('container');
+const circlePattern = {tl: 0, tr: 90, br: 180, bl: 270};
+
+function getCorner(row, col){
+  return (row===0 && col===0)?"tl":
+         (row===0 && col===1)?"tr":
+         (row===1 && col===0)?"bl":"br";
+}
+
+function createQuarter(row, col){
+  const q = document.createElement('div');
+  q.classList.add('quarter');
+  q.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+  q.dataset.corner = getCorner(row,col);
+  q.dataset.rotation = Math.floor(Math.random()*4)*90;
+  q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+  return q;
+}
+
+function isFullCircle(quarters){
+  const block = [quarters[0][0], quarters[0][1], quarters[1][0], quarters[1][1]];
+  return block.every(q => Number(q.dataset.rotation) === circlePattern[q.dataset.corner]);
+}
+
+function createBox(){
+  const box = document.createElement('div');
+  box.classList.add('box');
+  const quarters = [[],[]];
+  let fading = false;
+
+  for(let r=0;r<2;r++){
+    quarters[r] = [];
+    for(let c=0;c<2;c++){
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      const q = createQuarter(r,c);
+      cell.appendChild(q);
+      box.appendChild(cell);
+      quarters[r][c] = q;
+    }
+  }
+
+  // Avoid initial circle
+  while(isFullCircle(quarters)){
+    const r = Math.floor(Math.random()*2);
+    const c = Math.floor(Math.random()*2);
+    const q = quarters[r][c];
+    q.dataset.rotation = (Number(q.dataset.rotation)+90)%360;
+    q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+  }
+
+  // Spin each quarter independently at random intervals (2-15s)
+  function spinQuarterIndependently(q){
+    if(!q.classList.contains('locked')){
+      q.dataset.rotation = (Number(q.dataset.rotation)+90)%360;
+      q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+    }
+    const nextInterval = Math.random()*25000 + 4000; // 2-15 seconds
+    setTimeout(()=>spinQuarterIndependently(q), nextInterval);
+  }
+
+  quarters.flat().forEach(q => spinQuarterIndependently(q));
+
+  // Check for full circle and replace
+  function checkAndReplaceCircles(){
+    if(!fading && isFullCircle(quarters)){
+      fading = true;
+      const block = [quarters[0][0], quarters[0][1], quarters[1][0], quarters[1][1]];
+      block.forEach(q => q.classList.add('fade','locked'));
+
+      setTimeout(()=>{
+        block.forEach((q,i)=>{
+          const row = Math.floor(i/2);
+          const col = i%2;
+          const newQ = createQuarter(row,col);
+          quarters[row][col].parentNode.replaceChild(newQ, quarters[row][col]);
+          quarters[row][col] = newQ;
+          spinQuarterIndependently(newQ);
+        });
+        fading = false;
+      },10000);
+    }
+    requestAnimationFrame(checkAndReplaceCircles);
+  }
+
+  checkAndReplaceCircles();
+  return box;
+}
+
+// Create 3x3 boxes
+for(let i=0;i<boxesPerSide*boxesPerSide;i++){
+  container.appendChild(createBox());
+}
+</script>
+<div class="project-description">
+  <h1>Marketing</h1>
+  <p>
+  I started implementing various data-driven marketing strategies in 2024, with the goal of boosting my total amount of streams on Spotify, which resulted in a 66% increase in Spotify streams between 2023 and 2024. These strategies included playlist pitching and social media campaigns, but also included improvements on the ways in which I structured my songs from data analysis from my 2024 thesis. I was able to develop a framework to predict popularity of a song based off of analyzing 220 songs. The factors I analyzed included genre, label, total Spotify streams, lifetime in months, standardized popularity, tempo, duration, length of breaks, LUFS and average dynamic ranges, and also various qualitative variables.
+  </p>
+  <p>
+  You can read my thesis <a href="https://drive.proton.me/urls/N9TQ3TSP08#VrLgpvnuSO89" target="_blank" rel="noopener noreferrer">here</a>.
+  </p>
+  <p>
+  I was able to take the results from my thesis in order to increase my revenue from my music as well.
+  </p>
+  <div class="project-image-row">
+    <div class="project-image-text-width">
+      <img src="/2023-Spotify.PNG" alt="Spotify statistics for 2023">
+      <p>2023 stats</p>
+    </div>
+
+    <div class="project-image-text-width">
+      <img src="/2024-Spotify.PNG" alt="Spotify statistics for 2024">
+      <p>2024 stats</p>
+    </div>
+  </div>
+  <p>
+  I had 212k streams in 2023 and 354k in 2024, which was a 66% increase in streams.
+  </p>
+  <div class="project-description">
+    <h1>Music I've Made</h1>
+    <p>
+    I use Logic X Pro to create electronic music, in various genres including Future Bass, Melodic Dubstep, and Progressive House.
+    </p>
+    <div class="embed-container">
+
+      <!-- SoundCloud Embed 1 -->
+      <div class="embed-box">
+        <iframe
+          height="300"
+          scrolling="no"
+          allow="autoplay"
+          src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A1706019132&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true">
+        </iframe>
+        <div class="soundcloud-info">
+          <a href="https://soundcloud.com/tornicane" title="Tornicane" target="_blank">Tornicane</a> ·
+          <a href="https://soundcloud.com/tornicane/broken-circle" title="Broken Circle (ft. Alicia Orozco)" target="_blank">Broken Circle (ft. Alicia Orozco)</a>
+        </div>
+      </div>
+
+      <!-- SoundCloud Embed 2 -->
+      <div class="embed-box">
+        <iframe
+          height="300"
+          scrolling="no"
+          allow="autoplay"
+          src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/soundcloud%253Atracks%253A2010075955&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true">
+        </iframe>
+        <div class="soundcloud-info">
+          <a href="https://soundcloud.com/tornicane" title="Tornicane" target="_blank">Tornicane</a> ·
+          <a href="https://soundcloud.com/tornicane/senorita-remix" title="Shawn Mendes, Camila Cabello - Señorita (Tornicane Remix)" target="_blank">Shawn Mendes, Camila Cabello - Señorita (Tornicane Remix)</a>
+        </div>
+      </div>
+
+      <!-- Spotify Embed -->
+      <div class="embed-box">
+        <iframe
+          height="352"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          src="https://open.spotify.com/embed/artist/7JYT6Dvcako2aN1udZTnIn?utm_source=generator">
+        </iframe>
+      </div>
+
+    </div>
+  </div>
+  <script>
+  // Custom language dropdown
+  const dropdown = document.querySelector('.dropdown');
+  const toggle = document.getElementById('selected-lang');
+  const menu = document.getElementById('language-menu');
+
+  toggle.addEventListener('click', () => {
+    dropdown.classList.toggle('open');
+  });
+
+  menu.addEventListener('click', (e) => {
+    if (e.target.dataset.value) {
+      const selected = e.target.textContent;
+      toggle.textContent = selected + ' ▾';
+      dropdown.classList.remove('open');
+      // Optional: Add functionality to switch languages here
+      // console.log('Language set to:', e.target.dataset.value);
+    }
+  });
+
+  // Close dropdown if clicking outside
+  document.addEventListener('click', (e) => {
+    if (!dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+    }
+  });
+  </script>
+  <footer class="social-footer">
+    <a href="https://soundcloud.com/tornicane" target="_blank" rel="noopener noreferrer">
+      <img src="/soundcloud.svg" alt="SoundCloud">
+    </a>
+    <a href="https://open.spotify.com/artist/7JYT6Dvcako2aN1udZTnIn?si=RDQibv9wSbq7dOclRhCzLw" target="_blank" rel="noopener noreferrer">
+      <img src="/spotify.svg" alt="Spotify">
+    </a>
+    <a href="https://instagram.com/tornicane" target="_blank" rel="noopener noreferrer">
+      <img src="/instagram.svg" alt="Instagram">
+    </a>
+    <a href="https://github.com/devowen0" target="_blank" rel="noopener noreferrer">
+      <img src="/github.svg" alt="GitHub">
+    </a>
+    <a href="https://www.linkedin.com/in/owen-yanevich-2b7278307/" target="_blank" rel="noopener noreferrer">
+      <img src="/linkedin.svg" alt="LinkedIn">
+    </a>
+    <a href="https://drive.proton.me/urls/N9TQ3TSP08#VrLgpvnuSO89" target="_blank" rel="noopener noreferrer">
+      <img src="/proton-drive.svg" alt="Proton Drive">
+    </a>
+  </footer>
+
+  </body>
+  </html>
