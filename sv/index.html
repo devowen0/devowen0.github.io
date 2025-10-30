@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Om</title>
+<style>
+    /* ---------- NAVIGATION BAR ---------- */
+    .navbar {
+      width: 100%;
+      background-color: transparent;
+      box-shadow: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 1rem 0;
+      position: relative;
+      z-index: 1000;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;          /* ✅ wrap items if screen too narrow */
+      justify-content: center;  /* ✅ center items when wrapped */
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar li {
+      font-weight: bold;
+    }
+
+    .navbar a {
+      text-decoration: none;
+      color: #333;
+      transition: color 0.2s ease;
+      white-space: nowrap;      /* ✅ keeps each word from breaking */
+    }
+
+    .navbar a:hover {
+      color: #6C63FF;
+    }
+
+    /* Dropdown styling */
+    .language-select {
+      font-weight: bold;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      font-size: 1rem;
+      background-color: #ffffff;
+      cursor: pointer;
+    }
+
+    .language-select:hover {
+      border-color: #6C63FF;
+    }
+
+    /* ✅ Optional: make font smaller on very small screens */
+    @media (max-width: 500px) {
+      .navbar ul {
+        gap: 1rem;
+      }
+      .navbar a, .language-select {
+        font-size: 0.9rem;
+      }
+    }
+    
+    .dropdown {
+      position: relative;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    .dropdown-toggle {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dropdown-toggle:hover {
+      border-color: #6C63FF;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-menu {
+      display: none;                  /* hidden by default */
+      position: absolute;
+      top: calc(100%);          /* appear just below toggle */
+      left: 0;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      z-index: 2000;
+    }
+
+    .dropdown-menu div {
+      padding: 0.5rem 0.8rem;
+      cursor: pointer;
+    }
+
+    .dropdown-menu div:hover {
+      background-color: #f0f0ff;      /* light hover color */
+    }
+
+    /* When open */
+    .dropdown.open .dropdown-menu {
+      display: block;
+    }
+
+html, body {
+  min-height: 100%;
+  height: auto;
+  margin: 0;
+  display: flex;
+  flex-direction: column; /* stack items vertically */
+  justify-content: flex-start; /* start from top */
+  align-items: center; /* center horizontally */
+  background: linear-gradient(to bottom, #ffffff, #f0faff);
+  font-family: Arial, sans-serif;
+}
+
+    .main-container {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      margin-top: 5vh;
+      width: 90vw;       /* leave 5% space on each side */
+      max-width: 1000px; /* optional, keeps it from getting too wide on desktop */
+    }
+
+.text-container {
+  width: 40vmin; /* same width as animation grid (3 boxes * 12vmin) */
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: #333;
+  margin-right: 35px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 5px;
+  width: 40vmin; /* 3 boxes of 12vmin each */
+  height: 40vmin;
+}
+    
+    @media (max-width: 500px) {
+      .text-container {
+        width: calc(66% - 10px); /* subtract small gap */
+        margin-right: 10px;       /* keep space between text and animation */
+        margin-left: 1vmin;
+      }
+
+      .container {
+        width: calc(33% - 10px);  /* subtract small gap */
+        height: auto;             /* maintain aspect ratio */
+        margin-right: 10vw;
+      }
+    }
+
+.box {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  width: 12vmin;
+  height: 12vmin;
+}
+
+.cell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quarter {
+  width: 100%;
+  height: 100%;
+  border-top-left-radius: 100%;
+  transform-origin: center;
+  transition: transform 2s ease-in-out, opacity 10s ease;
+}
+
+.fade {
+  opacity: 0;
+}
+
+.locked {
+  pointer-events: none;
+}
+.project-description {
+  width: calc(40vmin + 35px + 40vmin); /* same total width as text + animation */
+  max-width: 90vw;
+  text-align: left;
+  margin: 5vh auto;
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+.project-description h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+    .project-description p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+}
+.project-description ul {
+  font-size: 1.1rem;      /* same as .project-description p */
+  line-height: 1.6;       /* match the paragraph spacing */
+  margin-top: 1rem;       /* small space above the list */
+  margin-left: 2rem;      /* indent for bullets */
+  color: #333;            /* same text color */
+}
+
+.project-description li {
+  margin-bottom: 0.5rem;  /* small space between bullets */
+}
+.project-image-text-width {
+  width: calc(36vmin + 35px + 36vmin); /* same as .text-container width */
+  max-width: 90vw;
+  margin: 3vh auto; /* space above and below */
+  text-align: center; /* center the image */
+}
+
+.project-image-text-width img {
+  width: 100%;   /* scale to container width */
+  height: auto;  /* maintain aspect ratio */
+  display: block;
+  border-radius: 8px; /* optional: nice rounded corners */
+}
+    .social-footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;               /* space between icons */
+      margin: 3rem 0;          /* space above and below footer */
+    }
+
+    .social-footer a img {
+      width: 30px;             /* size of each icon */
+      height: 30px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .social-footer a img:hover {
+      transform: scale(1.2);   /* slight zoom on hover */
+      opacity: 0.8;            /* subtle fade effect */
+    }
+</style>
+</head>
+<body>
+    <nav class="navbar">
+      <ul>
+        <li><a href="/sv">Om</a></li>
+        <li><a href="/music/sv">Musik</a></li>
+        <li><a href="/design/sv">Design</a></li>
+        <li><a href="/cryptography/sv">Kryptografi</a></li>
+        <li>
+            <div class="dropdown">
+              <div class="dropdown-toggle" id="selected-lang">Svenska ▾</div>
+              <div class="dropdown-menu" id="language-menu">
+                <div data-value="en">English</div>
+                <div data-value="sv">Svenska</div>
+              </div>
+            </div>
+
+            <script>
+              const menuItems = document.querySelectorAll('#language-menu div');
+              menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                  const lang = item.dataset.value; // "en" or "sv"
+
+                  // Set the custom path here
+                  let targetUrl;
+                  if (lang === 'en') {
+                    targetUrl = '/';       // English page
+                  } else if (lang === 'sv') {
+                    targetUrl = '/sv';    // Swedish page
+                  }
+
+                  window.location.href = targetUrl;
+                });
+              });
+            </script>
+        </li>
+      </ul>
+    </nav>
+<div class="main-container">
+  <div class="text-container">
+    <p>Hej! Jag är en utvecklare som brinner för att skapa intelligenta och användarvänliga applikationer som kombinerar AI, data science och bra design. Jag har också en stark kreativ bakgrund inom musikproduktion och grafisk design.</p>
+  </div>
+  <div class="container" id="container"></div>
+</div>
+
+<script>
+const colors = ["#6C63FF", "#4ECDC4", "#FFD166", "#EF476F", "#073B4C"];
+const boxesPerSide = 3;
+const container = document.getElementById('container');
+const circlePattern = {tl: 0, tr: 90, br: 180, bl: 270};
+
+function getCorner(row, col){
+  return (row===0 && col===0)?"tl":
+         (row===0 && col===1)?"tr":
+         (row===1 && col===0)?"bl":"br";
+}
+
+function createQuarter(row, col){
+  const q = document.createElement('div');
+  q.classList.add('quarter');
+  q.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+  q.dataset.corner = getCorner(row,col);
+  q.dataset.rotation = Math.floor(Math.random()*4)*90;
+  q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+  return q;
+}
+
+function isFullCircle(quarters){
+  const block = [quarters[0][0], quarters[0][1], quarters[1][0], quarters[1][1]];
+  return block.every(q => Number(q.dataset.rotation) === circlePattern[q.dataset.corner]);
+}
+
+function createBox(){
+  const box = document.createElement('div');
+  box.classList.add('box');
+  const quarters = [[],[]];
+  let fading = false;
+
+  for(let r=0;r<2;r++){
+    quarters[r] = [];
+    for(let c=0;c<2;c++){
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      const q = createQuarter(r,c);
+      cell.appendChild(q);
+      box.appendChild(cell);
+      quarters[r][c] = q;
+    }
+  }
+
+  // Avoid initial circle
+  while(isFullCircle(quarters)){
+    const r = Math.floor(Math.random()*2);
+    const c = Math.floor(Math.random()*2);
+    const q = quarters[r][c];
+    q.dataset.rotation = (Number(q.dataset.rotation)+90)%360;
+    q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+  }
+
+  // Spin each quarter independently at random intervals (2-15s)
+  function spinQuarterIndependently(q){
+    if(!q.classList.contains('locked')){
+      q.dataset.rotation = (Number(q.dataset.rotation)+90)%360;
+      q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+    }
+    const nextInterval = Math.random()*25000 + 4000; // 2-15 seconds
+    setTimeout(()=>spinQuarterIndependently(q), nextInterval);
+  }
+
+  quarters.flat().forEach(q => spinQuarterIndependently(q));
+
+  // Check for full circle and replace
+  function checkAndReplaceCircles(){
+    if(!fading && isFullCircle(quarters)){
+      fading = true;
+      const block = [quarters[0][0], quarters[0][1], quarters[1][0], quarters[1][1]];
+      block.forEach(q => q.classList.add('fade','locked'));
+
+      setTimeout(()=>{
+        block.forEach((q,i)=>{
+          const row = Math.floor(i/2);
+          const col = i%2;
+          const newQ = createQuarter(row,col);
+          quarters[row][col].parentNode.replaceChild(newQ, quarters[row][col]);
+          quarters[row][col] = newQ;
+          spinQuarterIndependently(newQ);
+        });
+        fading = false;
+      },10000);
+    }
+    requestAnimationFrame(checkAndReplaceCircles);
+  }
+
+  checkAndReplaceCircles();
+  return box;
+}
+
+// Create 3x3 boxes
+for(let i=0;i<boxesPerSide*boxesPerSide;i++){
+  container.appendChild(createBox());
+}
+</script>
+<div class="project-description">
+  <h1>AI-Teknisk Supportchattprojekt</h1>
+  <p>
+  Jag har skapat en AI-chattbot för teknisk support som använder PySide6 för fönstret och drivs av Ollama och DeepSeek. Den erbjuder en smidig chattupplevelse och är mycket kunnig, samt har funktioner som förbättrar användarupplevelsen, såsom ljus- och mörkt läge, skrivanimations-effekter och AI-svar formaterade med markdown. Den ger också användaren möjlighet att byta modeller, till exempel till något som mistral:7b, vilket körs helt lokalt och därmed garanterar konfidentialitet.
+  </p>
+  <p>
+  Den hanterar också olika specialfall, såsom:
+  </p>
+  <ul>
+    <li>Att användaren avviker från ämnet</li>
+    <li>Tomma användarinmatningar</li>
+    <li>Tidsgränser (timeouts)</li>
+    <li>Felaktig eller ovanlig output</li>
+    <li>Att undvika krascher genom att hålla tunga anrop i en bakgrundstråd separerad från GUI:t</li>
+    <li>Att förhindra att tangenttryckningar försvinner om inmatningsrutan inte är fokuserad</li>
+  </ul>
+  <p>
+  Du kan se projektet <a href="https://github.com/devowen0/tech-support-chat" target="_blank" rel="noopener noreferrer">här</a>.
+  </p>
+</div>
+<div class="project-image-text-width">
+  <img src="/output.gif" alt="Tech Support" />
+</div>
+<div class="project-description">
+  <h1>Lead Scoring & Prediktiv Marknadsföring Med Automation</h1>
+  <p>
+  Jag har skapat ett system för lead scoring och marknadsföringsautomation för att hjälpa säljteam att prioritera högvärdiga leads och optimera uppföljningskampanjer. Systemet använder en kombination av data science-tekniker, maskininlärning och processautomation för att simulera ett realistiskt marknadsföringsflöde. Projektet kombinerar prediktiv modellering med operativ schemaläggningslogik för att generera en komplett plan för lead-engagemang.
+  </p>
+  <p>
+  Jag använde logistisk regression, datanormalisering och dynamisk viktning för att bestämma leadpoäng, och kunde därefter skapa konkreta åtgärder baserade på dessa data, inklusive personliga uppföljningstidslinjer och schemaläggning av kampanjer.
+  </p>
+  <p>
+  Du kan se projektet <a href="https://github.com/devowen0/lead-scoring-predictive-marketing" target="_blank" rel="noopener noreferrer">här</a>.
+  </p>
+</div>
+<div class="project-image-text-width">
+  <img src="/leads.png" alt="Lead Scoring" />
+</div>
+<div class="project-description">
+  <h1>Projekt: Receptapp</h1>
+  <p>
+  Jag skapade en app med PySide6 som analyserar receptdata från en dataset kallad TidyTuesday. Den analyserar receptdata i en CSV-fil med 14 000 recept och rekommenderar recept till användaren baserat på betyg och recensioner, samt anpassar rekommendationerna utifrån användarens sparade recept och vilka recept de tittar på. Den använder ett Bayesianskt betygssystem och nyckelordsboostning för att åstadkomma detta. Den har även funktioner som förbättrar användarupplevelsen, bland annat:
+  </p>
+  <ul>
+    <li>Autokompletterande sökningar</li>
+    <li>Använder requests + BeautifulSoup för att lägga till bilder</li>
+    <li>Interaktivt, kollapsbart GUI</li>
+    <li>Rekommenderar nya recept varje gång, baserat på användardata</li>
+    <li>Spara favoritrecept lokalt</li>
+    <li>Lättviktig, kräver ingen internetuppkoppling</li>
+  </ul>
+  <p>
+  Du kan se projektet <a href="https://github.com/devowen0/allrecipes-app" target="_blank" rel="noopener noreferrer">här</a>.
+  </p>
+  <div class="project-image-text-width">
+    <img src="/recipes.png" alt="Recipes" />
+  </div>
+</div>
+<script>
+// Custom language dropdown
+const dropdown = document.querySelector('.dropdown');
+const toggle = document.getElementById('selected-lang');
+const menu = document.getElementById('language-menu');
+
+toggle.addEventListener('click', () => {
+  dropdown.classList.toggle('open');
+});
+
+menu.addEventListener('click', (e) => {
+  if (e.target.dataset.value) {
+    const selected = e.target.textContent;
+    toggle.textContent = selected + ' ▾';
+    dropdown.classList.remove('open');
+    // Optional: do something when language changes
+    // e.g. console.log('Language set to:', e.target.dataset.value);
+  }
+});
+
+// Close dropdown if clicking outside
+document.addEventListener('click', (e) => {
+  if (!dropdown.contains(e.target)) {
+    dropdown.classList.remove('open');
+  }
+});
+</script>
+<footer class="social-footer">
+  <a href="https://soundcloud.com/tornicane" target="_blank" rel="noopener noreferrer">
+    <img src="/soundcloud.svg" alt="SoundCloud">
+  </a>
+  <a href="https://open.spotify.com/artist/7JYT6Dvcako2aN1udZTnIn?si=RDQibv9wSbq7dOclRhCzLw" target="_blank" rel="noopener noreferrer">
+    <img src="/spotify.svg" alt="Spotify">
+  </a>
+  <a href="https://instagram.com/tornicane" target="_blank" rel="noopener noreferrer">
+    <img src="/instagram.svg" alt="Instagram">
+  </a>
+  <a href="https://github.com/devowen0" target="_blank" rel="noopener noreferrer">
+    <img src="/github.svg" alt="GitHub">
+  </a>
+  <a href="https://www.linkedin.com/in/owen-yanevich-2b7278307/" target="_blank" rel="noopener noreferrer">
+    <img src="/linkedin.svg" alt="LinkedIn">
+  </a>
+  <a href="https://drive.proton.me/urls/N9TQ3TSP08#VrLgpvnuSO89" target="_blank" rel="noopener noreferrer">
+    <img src="/proton-drive.svg" alt="Proton Drive">
+  </a>
+</footer>
+
+</body>
+</html>
