@@ -5,6 +5,117 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quarter-Circle Animation with Text</title>
 <style>
+    /* ---------- NAVIGATION BAR ---------- */
+    .navbar {
+      width: 100%;
+      background-color: transparent;
+      box-shadow: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 1rem 0;
+      position: relative;
+      z-index: 1000;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;          /* ✅ wrap items if screen too narrow */
+      justify-content: center;  /* ✅ center items when wrapped */
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar li {
+      font-weight: bold;
+    }
+
+    .navbar a {
+      text-decoration: none;
+      color: #333;
+      transition: color 0.2s ease;
+      white-space: nowrap;      /* ✅ keeps each word from breaking */
+    }
+
+    .navbar a:hover {
+      color: #6C63FF;
+    }
+
+    /* Dropdown styling */
+    .language-select {
+      font-weight: bold;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      font-size: 1rem;
+      background-color: #ffffff;
+      cursor: pointer;
+    }
+
+    .language-select:hover {
+      border-color: #6C63FF;
+    }
+
+    /* ✅ Optional: make font smaller on very small screens */
+    @media (max-width: 500px) {
+      .navbar ul {
+        gap: 1rem;
+      }
+      .navbar a, .language-select {
+        font-size: 0.9rem;
+      }
+    }
+    
+    .dropdown {
+      position: relative;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    .dropdown-toggle {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dropdown-toggle:hover {
+      border-color: #6C63FF;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-menu {
+      display: none;                  /* hidden by default */
+      position: absolute;
+      top: calc(100%);          /* appear just below toggle */
+      left: 0;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      z-index: 2000;
+    }
+
+    .dropdown-menu div {
+      padding: 0.5rem 0.8rem;
+      cursor: pointer;
+    }
+
+    .dropdown-menu div:hover {
+      background-color: #f0f0ff;      /* light hover color */
+    }
+
+    /* When open */
+    .dropdown.open .dropdown-menu {
+      display: block;
+    }
+
 html, body {
   min-height: 100%;
   height: auto;
@@ -17,15 +128,17 @@ html, body {
   font-family: Arial, sans-serif;
 }
 
-.main-container {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  margin-top: 5vh; /* push slightly down from top */
-}
+    .main-container {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      margin-top: 5vh;
+      width: 90vw;       /* leave 5% space on each side */
+      max-width: 1000px; /* optional, keeps it from getting too wide on desktop */
+    }
 
 .text-container {
-  width: 36vmin; /* same width as animation grid (3 boxes * 12vmin) */
+  width: 40vmin; /* same width as animation grid (3 boxes * 12vmin) */
   font-size: 1.1rem;
   line-height: 1.5;
   color: #333;
@@ -37,9 +150,23 @@ html, body {
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   gap: 5px;
-  width: 36vmin; /* 3 boxes of 12vmin each */
-  height: 36vmin;
+  width: 40vmin; /* 3 boxes of 12vmin each */
+  height: 40vmin;
 }
+    
+    @media (max-width: 500px) {
+      .text-container {
+        width: calc(66% - 10px); /* subtract small gap */
+        margin-right: 10px;       /* keep space between text and animation */
+        margin-left: 1vmin;
+      }
+
+      .container {
+        width: calc(33% - 10px);  /* subtract small gap */
+        height: auto;             /* maintain aspect ratio */
+        margin-right: 10vw;
+      }
+    }
 
 .box {
   display: grid;
@@ -73,7 +200,7 @@ html, body {
   pointer-events: none;
 }
 .project-description {
-  width: calc(36vmin + 35px + 36vmin); /* same total width as text + animation */
+  width: calc(40vmin + 35px + 40vmin); /* same total width as text + animation */
   max-width: 90vw;
   text-align: left;
   margin: 5vh auto;
@@ -116,9 +243,58 @@ html, body {
   display: block;
   border-radius: 8px; /* optional: nice rounded corners */
 }
+    .social-footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;               /* space between icons */
+      margin: 3rem 0;          /* space above and below footer */
+    }
+
+    .social-footer a img {
+      width: 30px;             /* size of each icon */
+      height: 30px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .social-footer a img:hover {
+      transform: scale(1.2);   /* slight zoom on hover */
+      opacity: 0.8;            /* subtle fade effect */
+    }
 </style>
 </head>
 <body>
+    <nav class="navbar">
+      <ul>
+        <li><a href="/">About</a></li>
+        <li><a href="/music">Music</a></li>
+        <li><a href="/design">Design</a></li>
+        <li><a href="/cryptography">Cryptography</a></li>
+        <li>
+            <div class="dropdown">
+              <div class="dropdown-toggle" id="selected-lang">English ▾</div>
+              <div class="dropdown-menu" id="language-menu">
+                <div data-value="en">English</div>
+                <div data-value="sv">Svenska</div>
+              </div>
+            </div>
+
+            <script>
+              const menuItems = document.querySelectorAll('#language-menu div');
+              menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                  const lang = item.dataset.value; // "en" or "sv"
+                  if (lang === 'en') {
+                    window.location.href = '/';
+                  } else {
+                    window.location.href = `/${lang}`;
+                  }
+                });
+              });
+            </script>
+        </li>
+      </ul>
+    </nav>
 <div class="main-container">
   <div class="text-container">
     <p>Hi! I’m a developer who is passionate about building intelligent, user-friendly applications that combine AI, data science, and great design. I also have a strong creative background in music production and graphic design.</p>
@@ -248,7 +424,7 @@ for(let i=0;i<boxesPerSide*boxesPerSide;i++){
   </p>
 </div>
 <div class="project-image-text-width">
-  <img src="" alt="Tech Support" />
+  <img src="output.gif" alt="Tech Support" />
 </div>
 <div class="project-description">
   <h1>Lead Scoring & Predictive Marketing Automation Project</h1>
@@ -261,6 +437,9 @@ for(let i=0;i<boxesPerSide*boxesPerSide;i++){
   <p>
     You can view this project <a href="https://github.com/devowen0/lead-scoring-predictive-marketing" target="_blank" rel="noopener noreferrer">here</a>.
   </p>
+</div>
+<div class="project-image-text-width">
+  <img src="leads.png" alt="Lead Scoring" />
 </div>
 <div class="project-description">
   <h1>Recipe App Project</h1>
@@ -278,6 +457,57 @@ for(let i=0;i<boxesPerSide*boxesPerSide;i++){
   <p>
     You can view this project <a href="https://github.com/devowen0/allrecipes-app" target="_blank" rel="noopener noreferrer">here</a>.
   </p>
+  <div class="project-image-text-width">
+    <img src="recipes.png" alt="Recipes" />
+  </div>
 </div>
+<script>
+// Custom language dropdown
+const dropdown = document.querySelector('.dropdown');
+const toggle = document.getElementById('selected-lang');
+const menu = document.getElementById('language-menu');
+
+toggle.addEventListener('click', () => {
+  dropdown.classList.toggle('open');
+});
+
+menu.addEventListener('click', (e) => {
+  if (e.target.dataset.value) {
+    const selected = e.target.textContent;
+    toggle.textContent = selected + ' ▾';
+    dropdown.classList.remove('open');
+    // Optional: do something when language changes
+    // e.g. console.log('Language set to:', e.target.dataset.value);
+  }
+});
+
+// Close dropdown if clicking outside
+document.addEventListener('click', (e) => {
+  if (!dropdown.contains(e.target)) {
+    dropdown.classList.remove('open');
+  }
+});
+</script>
+<footer class="social-footer">
+  <a href="https://soundcloud.com/tornicane" target="_blank" rel="noopener noreferrer">
+    <img src="soundcloud.svg" alt="SoundCloud">
+  </a>
+  <a href="https://open.spotify.com/artist/7JYT6Dvcako2aN1udZTnIn?si=RDQibv9wSbq7dOclRhCzLw" target="_blank" rel="noopener noreferrer">
+    <img src="spotify.svg" alt="Spotify">
+  </a>
+  <a href="https://instagram.com/tornicane" target="_blank" rel="noopener noreferrer">
+    <img src="instagram.svg" alt="Instagram">
+  </a>
+  <a href="https://github.com/devowen0" target="_blank" rel="noopener noreferrer">
+    <img src="github.svg" alt="GitHub">
+  </a>
+  <a href="https://www.linkedin.com/in/owen-yanevich-2b7278307/" target="_blank" rel="noopener noreferrer">
+    <img src="linkedin.svg" alt="LinkedIn">
+  </a>
+  <a href="https://drive.proton.me/urls/N9TQ3TSP08#VrLgpvnuSO89" target="_blank" rel="noopener noreferrer">
+    <img src="proton-drive.svg" alt="Proton Drive">
+  </a>
+</footer>
+
 </body>
 </html>
