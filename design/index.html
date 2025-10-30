@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design</title>
+<style>
+    .navbar {
+      width: 100%;
+      background-color: transparent;
+      box-shadow: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 1rem 0;
+      position: relative;
+      z-index: 1000;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar li {
+      font-weight: bold;
+    }
+
+    .navbar a {
+      text-decoration: none;
+      color: #333;
+      transition: color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .navbar a:hover {
+      color: #6C63FF;
+    }
+
+    /* Dropdown styling */
+    .dropdown {
+      position: relative;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    .dropdown-toggle {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dropdown-toggle:hover {
+      border-color: #6C63FF;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100%);
+      left: 0;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      z-index: 2000;
+    }
+
+    .dropdown-menu div {
+      padding: 0.5rem 0.8rem;
+      cursor: pointer;
+    }
+
+    .dropdown-menu div:hover {
+      background-color: #f0f0ff;
+    }
+
+    /* When open */
+    .dropdown.open .dropdown-menu {
+      display: block;
+    }
+
+    /* Small screen adjustments */
+    @media (max-width: 500px) {
+      .navbar ul {
+        gap: 1rem;
+      }
+      .navbar a, .dropdown-toggle {
+        font-size: 0.9rem;
+      }
+    }
+html, body {
+  min-height: 100%;
+  height: auto;
+  margin: 0;
+  display: flex;
+  flex-direction: column; /* stack items vertically */
+  justify-content: flex-start; /* start from top */
+  align-items: center; /* center horizontally */
+  background: linear-gradient(to bottom, #ffffff, #f0faff);
+  font-family: Arial, sans-serif;
+}
+
+    .main-container {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      margin-top: 5vh;
+      width: 90vw;       /* leave 5% space on each side */
+      max-width: 1000px; /* optional, keeps it from getting too wide on desktop */
+    }
+    
+    .text-container {
+      width: 40vmin; /* desktop: fixed width matching animation grid */
+      margin-right: 35px;
+      font-size: 1.1rem;
+    }
+
+    .text-container p {
+      font-family: Arial, sans-serif;  /* same as .project-description */
+      font-size: 1.1rem;
+      line-height: 1.6;               /* same spacing as below */
+      color: #333;
+      text-align: left;
+      margin: 0;                       /* or margin-bottom: 1rem if needed */
+    }
+
+    @media (max-width: 500px) {
+      .text-container {
+        width: calc(66% - 10px); /* takes ~2/3 of width on mobile */
+        margin-right: 10px;       /* smaller margin for mobile */
+        margin-left: 1vmin;
+      }
+    }
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 5px;
+  width: 40vmin; /* 3 boxes of 12vmin each */
+  height: 40vmin;
+}
+
+.box {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  width: 12vmin;
+  height: 12vmin;
+}
+
+.cell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quarter {
+  width: 100%;
+  height: 100%;
+  border-top-left-radius: 100%;
+  transform-origin: center;
+  transition: transform 2s ease-in-out, opacity 10s ease;
+}
+
+.fade {
+  opacity: 0;
+}
+
+.locked {
+  pointer-events: none;
+}
+.project-description {
+  width: calc(40vmin + 35px + 40vmin); /* same total width as text + animation */
+  max-width: 90vw;
+  text-align: left;
+  margin: 5vh auto;
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+.project-description h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+    .project-description p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+}
+.project-description ul {
+  font-size: 1.1rem;      /* same as .project-description p */
+  line-height: 1.6;       /* match the paragraph spacing */
+  margin-top: 1rem;       /* small space above the list */
+  margin-left: 2rem;      /* indent for bullets */
+  color: #333;            /* same text color */
+}
+
+.project-description li {
+  margin-bottom: 0.5rem;  /* small space between bullets */
+}
+.project-image-text-width {
+  width: calc(36vmin + 35px + 36vmin); /* same as .text-container width */
+  max-width: 90vw;
+  margin: 3vh auto; /* space above and below */
+  text-align: center; /* center the image */
+}
+
+.project-image-text-width img {
+  width: 100%;   /* scale to container width */
+  height: auto;  /* maintain aspect ratio */
+  display: block;
+  border-radius: 8px; /* optional: nice rounded corners */
+}
+    /* Responsive YouTube embeds — ONLY affects videos */
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      height: 0;
+      overflow: hidden;
+      margin: 2rem auto;
+      max-width: 560px; /* optional limit for large screens */
+      width: 100%;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* Make them scale properly on mobile */
+    @media (max-width: 600px) {
+      .video-container {
+        max-width: 100%;
+        padding-bottom: 56.25%;
+      }
+    }
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* changed from 2 to 3 */
+      gap: 2rem;
+      margin-top: 2rem;
+      width: calc(40vmin + 35px + 40vmin);
+      max-width: 90vw;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Mobile: 1 image per row */
+    @media (max-width: 600px) {
+      .image-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+
+    .image-grid img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .image-grid img:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Mobile: 1 image per row */
+    @media (max-width: 600px) {
+      .image-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+    }
+    .social-footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;               /* space between icons */
+      margin: 3rem 0;          /* space above and below footer */
+    }
+
+    .social-footer a img {
+      width: 30px;             /* size of each icon */
+      height: 30px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .social-footer a img:hover {
+      transform: scale(1.2);   /* slight zoom on hover */
+      opacity: 0.8;            /* subtle fade effect */
+    }
+</style>
+</head>
+<body>
+    <nav class="navbar">
+      <ul>
+        <li><a href="/">About</a></li>
+        <li><a href="/music">Music</a></li>
+        <li><a href="/design">Design</a></li>
+        <li><a href="/cryptography">Cryptography</a></li>
+        <li>
+            <div class="dropdown">
+              <div class="dropdown-toggle" id="selected-lang">English ▾</div>
+              <div class="dropdown-menu" id="language-menu">
+                <div data-value="en">English</div>
+                <div data-value="sv">Svenska</div>
+              </div>
+            </div>
+
+            <script>
+              const menuItems = document.querySelectorAll('#language-menu div');
+              menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                  const lang = item.dataset.value; // "en" or "sv"
+
+                  // Set the custom path here
+                  let targetUrl;
+                  if (lang === 'en') {
+                    targetUrl = '/design';       // English page
+                  } else if (lang === 'sv') {
+                    targetUrl = '/design/sv';    // Swedish page
+                  }
+
+                  window.location.href = targetUrl;
+                });
+              });
+            </script>
+        </li>
+      </ul>
+    </nav>
+<div class="main-container">
+  <div class="text-container">
+    <p>I have gotten a lot of experience in graphic design from my music and other things I have designed for fun, such as user interfaces. I combine graphic design with motion and also create vibrant visuals.</p>
+  </div>
+  <div class="container" id="container"></div>
+</div>
+
+<script>
+const colors = ["#6C63FF", "#4ECDC4", "#FFD166", "#EF476F", "#073B4C"];
+const boxesPerSide = 3;
+const container = document.getElementById('container');
+const circlePattern = {tl: 0, tr: 90, br: 180, bl: 270};
+
+function getCorner(row, col){
+  return (row===0 && col===0)?"tl":
+         (row===0 && col===1)?"tr":
+         (row===1 && col===0)?"bl":"br";
+}
+
+function createQuarter(row, col){
+  const q = document.createElement('div');
+  q.classList.add('quarter');
+  q.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+  q.dataset.corner = getCorner(row,col);
+  q.dataset.rotation = Math.floor(Math.random()*4)*90;
+  q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+  return q;
+}
+
+function isFullCircle(quarters){
+  const block = [quarters[0][0], quarters[0][1], quarters[1][0], quarters[1][1]];
+  return block.every(q => Number(q.dataset.rotation) === circlePattern[q.dataset.corner]);
+}
+
+function createBox(){
+  const box = document.createElement('div');
+  box.classList.add('box');
+  const quarters = [[],[]];
+  let fading = false;
+
+  for(let r=0;r<2;r++){
+    quarters[r] = [];
+    for(let c=0;c<2;c++){
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      const q = createQuarter(r,c);
+      cell.appendChild(q);
+      box.appendChild(cell);
+      quarters[r][c] = q;
+    }
+  }
+
+  // Avoid initial circle
+  while(isFullCircle(quarters)){
+    const r = Math.floor(Math.random()*2);
+    const c = Math.floor(Math.random()*2);
+    const q = quarters[r][c];
+    q.dataset.rotation = (Number(q.dataset.rotation)+90)%360;
+    q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+  }
+
+  // Spin each quarter independently at random intervals (2-15s)
+  function spinQuarterIndependently(q){
+    if(!q.classList.contains('locked')){
+      q.dataset.rotation = (Number(q.dataset.rotation)+90)%360;
+      q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+    }
+    const nextInterval = Math.random()*25000 + 4000; // 2-15 seconds
+    setTimeout(()=>spinQuarterIndependently(q), nextInterval);
+  }
+
+  quarters.flat().forEach(q => spinQuarterIndependently(q));
+
+  // Check for full circle and replace
+  function checkAndReplaceCircles(){
+    if(!fading && isFullCircle(quarters)){
+      fading = true;
+      const block = [quarters[0][0], quarters[0][1], quarters[1][0], quarters[1][1]];
+      block.forEach(q => q.classList.add('fade','locked'));
+
+      setTimeout(()=>{
+        block.forEach((q,i)=>{
+          const row = Math.floor(i/2);
+          const col = i%2;
+          const newQ = createQuarter(row,col);
+          quarters[row][col].parentNode.replaceChild(newQ, quarters[row][col]);
+          quarters[row][col] = newQ;
+          spinQuarterIndependently(newQ);
+        });
+        fading = false;
+      },10000);
+    }
+    requestAnimationFrame(checkAndReplaceCircles);
+  }
+
+  checkAndReplaceCircles();
+  return box;
+}
+
+// Create 3x3 boxes
+for(let i=0;i<boxesPerSide*boxesPerSide;i++){
+  container.appendChild(createBox());
+}
+</script>
+<div class="project-description">
+  <h1>Design With Motion</h1>
+
+  <div class="video-container">
+    <iframe src="https://www.youtube-nocookie.com/embed/SK-L_eyirLk?si=dm-wYmDgwVSzTsZ6"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  </div>
+
+  <p>
+    This is an example of a mix that I made with a pretty aesthetic cover and minimal motion. On the square cover, I had it be a little more chaotic, but still aesthetic and pushed to the background, and I still made sure that everything had room to breathe.
+  </p>
+
+  <div class="video-container">
+    <iframe src="https://www.youtube-nocookie.com/embed/sEW5rZtAHGc?si=WddlTufn0-4znGGY"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  </div>
+  <p>
+  On this one, I decided to add in some motion with the background shaking, and have the logo respond to the bass. I also decided to have the background be symmetrical, which I felt worked best with this style. The most challenging part of making this was actually in making sure that the colors on the logo blended well with everything else.
+  </p>
+  <div class="video-container">
+    <iframe src="https://www.youtube-nocookie.com/embed/BRdK3r_gIjs?si=eJjj57gMMLCxZbyt"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+  </div>
+  <p>
+  This one's a bit older, but I decided to have more motion with the background, and have the background be a looped video, in which I also chose for it to be a more minimalistic background video. I feel like this gives early to mid 2010s vibes, which is also how this song is.
+  </p>
+  <h1>Song Covers I've Made</h1>
+  <p>
+  Here are some song covers that I've also made:
+  </p>
+  <div class="image-grid">
+    <img src="/dillon_francis.jpg" alt="Dillon Francis cover">
+    <img src="/fractured_ties.jpg" alt="Fractured Ties cover">
+    <img src="/Illusions_v_Fingers_Crossed.jpg" alt="Illusions vs Fingers Crossed cover">
+    <img src="/Senorita.jpg" alt="Señorita cover">
+    <img src="/airplane-test.png" alt="Airplane Cover">
+    <img src="/Dum-Dee-Dum.jpg" alt="Dum Dee Dum Cover">
+    <img src="/fractured_ties.jpg" alt="Fractured Ties Cover">
+    <img src="/picasso.png" alt="Picasso Cover">
+    <img src="/synthetic-beauty-test.png" alt="Synthetic Beauty Cover">
+  </div>
+  <p>
+  You can find many of these song covers on <a href="https://soundcloud.com/tornicane" target="_blank" rel="noopener noreferrer">here</a>. I used Photoshop to create these covers.
+  </p>
+</div>
+</div>
+<script>
+// Custom language dropdown
+const dropdown = document.querySelector('.dropdown');
+const toggle = document.getElementById('selected-lang');
+const menu = document.getElementById('language-menu');
+
+toggle.addEventListener('click', () => {
+  dropdown.classList.toggle('open');
+});
+
+menu.addEventListener('click', (e) => {
+  if (e.target.dataset.value) {
+    const selected = e.target.textContent;
+    toggle.textContent = selected + ' ▾';
+    dropdown.classList.remove('open');
+    // Optional: Add functionality to switch languages here
+    // console.log('Language set to:', e.target.dataset.value);
+  }
+});
+
+// Close dropdown if clicking outside
+document.addEventListener('click', (e) => {
+  if (!dropdown.contains(e.target)) {
+    dropdown.classList.remove('open');
+  }
+});
+</script>
+<footer class="social-footer">
+  <a href="https://soundcloud.com/tornicane" target="_blank" rel="noopener noreferrer">
+    <img src="/soundcloud.svg" alt="SoundCloud">
+  </a>
+  <a href="https://open.spotify.com/artist/7JYT6Dvcako2aN1udZTnIn?si=RDQibv9wSbq7dOclRhCzLw" target="_blank" rel="noopener noreferrer">
+    <img src="/spotify.svg" alt="Spotify">
+  </a>
+  <a href="https://instagram.com/tornicane" target="_blank" rel="noopener noreferrer">
+    <img src="/instagram.svg" alt="Instagram">
+  </a>
+  <a href="https://github.com/devowen0" target="_blank" rel="noopener noreferrer">
+    <img src="/github.svg" alt="GitHub">
+  </a>
+  <a href="https://www.linkedin.com/in/owen-yanevich-2b7278307/" target="_blank" rel="noopener noreferrer">
+    <img src="/linkedin.svg" alt="LinkedIn">
+  </a>
+  <a href="https://drive.proton.me/urls/N9TQ3TSP08#VrLgpvnuSO89" target="_blank" rel="noopener noreferrer">
+    <img src="/proton-drive.svg" alt="Proton Drive">
+  </a>
+</footer>
+
+</body>
+</html>

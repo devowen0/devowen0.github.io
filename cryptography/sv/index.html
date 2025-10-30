@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AES-256-GCM Decryptor</title>
+<style>
+    /* REPLACE: add global box-sizing and improved default scaling */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
+    /* Navbar (keeps compact on small screens) */
+    .navbar {
+      width: 100%;
+      background-color: transparent;
+      box-shadow: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 0.8rem 0;
+      position: relative;
+      z-index: 1000;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar li {
+      font-weight: 700;
+    }
+
+    .navbar a {
+      text-decoration: none;
+      color: #333;
+      transition: color 0.2s ease;
+      white-space: nowrap;
+      font-size: 1rem;
+    }
+
+    /* Dropdown styling unchanged but compacted slightly */
+    .dropdown { position: relative; font-weight: 700; user-select: none; }
+    .dropdown-toggle {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      font-size: 0.95rem;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      width: max-content;
+      z-index: 2000;
+    }
+    .dropdown.open .dropdown-menu { display: block; }
+    .dropdown-menu div { padding: 0.45rem 0.8rem; cursor: pointer; }
+
+    /* Page body and container: responsive, allows container to shrink thinly */
+    body {
+      display: flex;
+      flex-direction: column;  /* stack items vertically */
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(to bottom, #ffffff, #f0faff);
+      padding: 40px 12px 60px; /* small horizontal padding so container can go edge-to-edge on tiny screens */
+    }
+
+    /* CONTAINER: responsive width, will get thinner on small screens */
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      /* allow the container to shrink fluidly: min 280px, ideal 90% of viewport, max 600px */
+      width: clamp(280px, 90vw, 600px);
+      max-width: 100%;
+      text-align: center;
+    }
+
+    /* Headings and small description */
+    h2 {
+      margin: 0 0 6px 0;
+      font-size: 1rem;
+    }
+    p.description {
+      margin: 0 0 14px 0;
+      color: #333;
+      font-size: 1rem;
+    }
+
+    /* Ciphertext box (pre): wrap and allow horizontal scroll on narrow screens */
+    pre {
+      white-space: pre-wrap;         /* allow wrapping */
+      word-break: break-word;        /* break long tokens */
+      background: #f7f8fb;
+      padding: 12px;
+      border-radius: 10px;
+      text-align: left;
+      max-height: 300px;
+      overflow-y: auto;
+      overflow-x: auto;             /* allow horizontal scroll if needed */
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      font-size: 0.9rem;
+      margin: 8px 0 12px 0;
+    }
+
+    /* Password field container */
+    .password-container {
+      position: relative;
+      width: 100%;
+      margin: 12px 0;
+    }
+
+    .password-container input {
+      width: 100%;
+      padding: 10px 44px 10px 12px; /* room for the toggle icon on the right */
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    /* small toggle icon */
+    .password-container img {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+    }
+
+    /* Button: responsive width on small screens */
+    .button-container { position: relative; display: inline-block; }
+
+    button { width: 160px; padding: 10px 0; font-size: 1rem; border-radius: 50px; border: none; background: #6d4aff; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 20px; }
+
+    .spinner { width: 16px; height: 16px; border: 2px solid transparent; border-top: 2px solid white; border-right: 2px solid white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* small helper blocks */
+    .hint { margin-top: 8px; font-size: 0.9rem; color: #555; }
+    .output {
+      margin-top: 14px;
+      background: #fbfdff;
+      padding: 12px;
+      border-radius: 8px;
+      min-height: 48px;
+      text-align: left;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 1rem;
+    }
+    .error { color: #c62828; margin-top: 10px; font-size: 0.9rem; }
+
+    /* Footer social icons - remain compact and wrap */
+    .social-footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin: 2.5rem 0;
+      flex-wrap: wrap;
+    }
+    .social-footer a img { width: 30px; height: 30px; transition: transform 0.18s ease, opacity 0.18s ease; }
+    .social-footer a img:hover { transform: scale(1.15); opacity: 0.85; }
+
+    /* SMALL SCREEN TUNING (phones) */
+    @media (max-width: 420px) {
+      body { padding-top: 26px; padding-left: 10px; padding-right: 10px; }
+      .container { padding: 14px; border-radius: 10px; }
+      h2 { font-size: 1.15rem; }
+      p.description, .hint, .error, .output { font-size: 0.88rem; }
+      pre { font-size: 0.75rem; padding: 10px; max-height: 260px; }
+      .password-container input { padding-right: 44px; font-size: 0.95rem; }
+      .password-container img { right: 8px; width: 20px; height: 20px; }
+      button { font-size: 0.95rem; padding: 9px 0; }
+      .navbar ul { gap: 0.6rem; }
+      .navbar a { font-size: 0.9rem; }
+    }
+
+</style>
+</head>
+<body>
+    <div class="page">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/sv">Om</a></li>
+                <li><a href="/music/sv">Musik</a></li>
+                <li><a href="/design/sv">Design</a></li>
+                <li><a href="/cryptography/sv">Kryptografi</a></li>
+                <li>
+                    <div class="dropdown">
+                      <div class="dropdown-toggle" id="selected-lang">Svenska ▾</div>
+                      <div class="dropdown-menu" id="language-menu">
+                        <div data-value="en">English</div>
+                        <div data-value="sv">Svenska</div>
+                      </div>
+                    </div>
+
+                    <script>
+                      const menuItems = document.querySelectorAll('#language-menu div');
+                      menuItems.forEach(item => {
+                        item.addEventListener('click', () => {
+                          const lang = item.dataset.value; // "en" or "sv"
+
+                          // Set the custom path here
+                          let targetUrl;
+                          if (lang === 'en') {
+                            targetUrl = '/cryptography';       // English page
+                          } else if (lang === 'sv') {
+                            targetUrl = '/cryptography/sv';    // Swedish page
+                          }
+
+                          window.location.href = targetUrl;
+                        });
+                      });
+                    </script>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="container">
+            <h2>AES-256-GCM Dekrypterare</h2>
+            <p class="description">Denna chiffertext är i base64. Skriv in lösenordet 'password' för att dekryptera meddelandet.</p>
+            <pre id="ciphertext">/P0YyfMOZvMjMCF7B0vCw8HHHkhPLsRSZTDACsHuC3TdLpkZD/PExTE+JBQ1MJN9Uzc4GOPee/XA76TN+15//lneGDbuCAVI3EpZce2IOGx4BK0/m/2rIis7ftI/CPrla7BCxuq6rjwtfek0wsmM1sUn+fOiJ4IwNyU4x+R0hQ1n3Kd2XXC6ZSIM/FX8FycCtvVPQ3SSA4mJrY0cEdgPhw6pldc2FGHRg2JVg0tDGYrOZHqilTD6rW1lL8od2bHSe30wb5LlHBK9yUiVdLYuZw3AG2oudlUfiqQTpY7pgiFBiv3vGk0aMVdMSn9rYgJnkK+zL8N9jqlDpRvhi5kdSddd0HPAs0i8QxbiaaKhxTIDIi6VIWXXF36K57Ihbs1xwOADfTtr7F1sLR6+E3M2JZ0x3HjeABsMIV2o509VszJtLtIML86J7HdQdANhObF0C8ImtwJiWw==</pre>
+            
+            <form id="decryptForm">
+                <div class="password-container">
+                    <input type="password" id="password" placeholder="Skriv in lösenordet">
+                        <img id="togglePassword" src="eye.svg" alt="Toggle Password">
+                </div>
+                <div class="button-container">
+                    <button type="submit" id="decryptBtn">Decrypt</button>
+                </div>
+            </form>
+            
+            <div class="hint">(tips: lösenordet är password)</div>
+            <div class="output" id="output"></div>
+            <div class="error" id="error"></div>
+        </div>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/argon2-browser/1.18.0/argon2-bundled.min.js"></script>
+        <script>
+            async function decryptAESGCM(base64Input, password) {
+                try {
+                    const data = Uint8Array.from(atob(base64Input), c => c.charCodeAt(0));
+                    if (data.length < 16 + 12 + 16) throw new Error("Ciphertext too short");
+                    const salt = data.slice(0, 16);
+                    const nonce = data.slice(16, 28);
+                    const ciphertext = data.slice(28);
+                    
+                    const hashResult = await argon2.hash({
+                        pass: password,
+                        salt: salt,
+                        time: 20,
+                        mem: 128 * 1024,
+                        parallelism: 2,
+                        hashLen: 32,
+                        type: argon2.ArgonType.Argon2id
+                    });
+                    const keyBytes = Uint8Array.from(hashResult.hashHex.match(/.{2}/g).map(b => parseInt(b, 16)));
+                    
+                    const cryptoKey = await crypto.subtle.importKey("raw", keyBytes, "AES-GCM", false, ["decrypt"]);
+                    const plaintextBuffer = await crypto.subtle.decrypt({ name: "AES-GCM", iv: nonce }, cryptoKey, ciphertext);
+                    return new TextDecoder().decode(plaintextBuffer);
+                } catch (err) {
+                    throw new Error("Decryption failed" + err.message);
+                }
+            }
+            
+            // Form submit: works with button click and Enter
+            document.getElementById("decryptForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const base64Input = document.getElementById("ciphertext").textContent.trim();
+                const password = document.getElementById("password").value;
+                const output = document.getElementById("output");
+                const error = document.getElementById("error");
+                const btn = document.getElementById("decryptBtn");
+                
+                output.textContent = "";
+                error.textContent = "";
+                
+                const spinner = document.createElement("span");
+                spinner.className = "spinner";
+                btn.appendChild(spinner);
+                btn.disabled = true;
+                
+                try {
+                    const plaintext = await decryptAESGCM(base64Input, password);
+                    output.textContent = plaintext;
+                } catch (err) {
+                    error.textContent = err.message;
+                } finally {
+                    spinner.remove();
+                    btn.disabled = false;
+                }
+            });
+            
+            // Toggle password visibility
+            const toggle = document.getElementById("togglePassword");
+            const passwordInput = document.getElementById("password");
+            toggle.addEventListener("click", () => {
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    toggle.src = "/eye-off.svg";
+                } else {
+                    passwordInput.type = "password";
+                    toggle.src = "/eye.svg";
+                }
+            });
+        </script>
+        <script>
+        /* === Language dropdown (safe, DOM-ready, no global name collisions) === */
+        document.addEventListener('DOMContentLoaded', () => {
+          const dropdownEl = document.querySelector('.dropdown');
+          const langToggle = document.getElementById('selected-lang');
+          const menu = document.getElementById('language-menu');
+
+          if (!dropdownEl || !langToggle || !menu) return; // safety
+
+          // Open/close when clicking the toggle. Stop propagation so the document click doesn't immediately close it.
+          langToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownEl.classList.toggle('open');
+          });
+
+          // Choose a language inside the menu
+          menu.addEventListener('click', (e) => {
+            const item = e.target;
+            if (item && item.dataset && item.dataset.value) {
+              const selectedText = item.textContent.trim();
+              langToggle.textContent = selectedText + ' ▾';
+              dropdownEl.classList.remove('open');
+
+              // TODO: hook language switching here, e.g. set a cookie, call i18n etc.
+              // console.log('Language set to:', item.dataset.value);
+            }
+          });
+
+          // Prevent clicks inside the dropdown from bubbling to document (optional)
+          dropdownEl.addEventListener('click', (e) => e.stopPropagation());
+
+          // Close when clicking anywhere else
+          document.addEventListener('click', (e) => {
+            if (!dropdownEl.contains(e.target)) {
+              dropdownEl.classList.remove('open');
+            }
+          });
+
+          // Optional: close on Escape
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') dropdownEl.classList.remove('open');
+          });
+        });
+        </script>
+    </div>
+    <footer class="social-footer">
+      <a href="https://soundcloud.com/tornicane" target="_blank" rel="noopener noreferrer">
+        <img src="/soundcloud.svg" alt="SoundCloud">
+      </a>
+      <a href="https://open.spotify.com/artist/7JYT6Dvcako2aN1udZTnIn?si=RDQibv9wSbq7dOclRhCzLw" target="_blank" rel="noopener noreferrer">
+        <img src="/spotify.svg" alt="Spotify">
+      </a>
+      <a href="https://instagram.com/tornicane" target="_blank" rel="noopener noreferrer">
+        <img src="/instagram.svg" alt="Instagram">
+      </a>
+      <a href="https://github.com/devowen0" target="_blank" rel="noopener noreferrer">
+        <img src="/github.svg" alt="GitHub">
+      </a>
+      <a href="https://www.linkedin.com/in/owen-yanevich-2b7278307/" target="_blank" rel="noopener noreferrer">
+        <img src="/linkedin.svg" alt="LinkedIn">
+      </a>
+      <a href="https://drive.proton.me/urls/N9TQ3TSP08#VrLgpvnuSO89" target="_blank" rel="noopener noreferrer">
+        <img src="/proton-drive.svg" alt="Proton Drive">
+      </a>
+    </footer>
+</body>
+</html>
+
