@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+    <title>Password generator</title>
+</head>
+
+<body class="dark">
+    <div class="main">
+        <div class="intro-div">
+            <div class="theme-switcher">
+                <img
+                    id="theme-toggle"
+                    src="dark-mode.svg"
+                    alt="Toggle Theme"
+                    onclick="crossFadeBackgroundAndToggleTheme()"
+                    width="32" height="32"
+                >
+            </div>
+            <h1 class="title-first-part">Generate a </h1>
+            <h1 class="title-second-part">random password</h1>
+            <p>Never use an insecure password again</p>
+            <br>
+            <div class="settings-container">
+                <div class="characters-container">
+                    <div class="number-label">
+                        <span id="number-display">16</span>
+                        <label>characters</label>
+                    </div>
+                    <input type="range" id="number-range-el" min="4" max="64" value="16" oninput="updateCharacterNumber(this.value)">
+                </div>
+
+                <div class="checkbox-container">
+                    <label class="pretty-checkbox">
+                        <input type="checkbox" id="numbers-checkbox" checked onchange="toggleNumbers()">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-text">Include numbers</span>
+                    </label>
+                    <label class="pretty-checkbox">
+                        <input type="checkbox" id="symbols-checkbox" checked onchange="toggleSymbols()">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-text">Include special characters</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="straight-line"></div>
+        <div id="passwords-el">
+            <div id="password-box" class="password">
+                <span id="password-text"></span>   <!-- This will hold the password -->
+                <img id="copy-icon" src="copy.svg" alt="Copy" onclick="copyPassword('password-text')">
+            </div>
+            <span id="copy-tooltip">Copy</span>
+            <button class="button-password-generator" onClick="assignPasswordsToButtons()">Regenerate</button>
+        </div>
+        <label class="pass-strength">Password Strength:</label>
+        <div class="strength-bar">
+            <div class="strength-fill" id="strength-fill"></div>
+        </div>
+        <div id="strength-text"></div>
+    </div>
+    <script src="index.js"></script>
+</body>
+
+</html>
