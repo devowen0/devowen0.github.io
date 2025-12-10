@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spotify Playlist Project</title>
+<style>
+    .responsive-iframe {
+      position: relative;
+      width: 100%;               /* fill container width */
+      max-width: 100%;           /* optional max-width */
+      aspect-ratio: 16 / 9;      /* maintain 16:9 aspect ratio (adjust if needed) */
+      margin: 2rem auto;         /* center with vertical spacing */
+      border-radius: 8px;        /* optional */
+      overflow: hidden;           /* clip if needed */
+    }
+
+    .responsive-iframe iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;                 /* remove default border */
+    }
+
+    /* Responsive container */
+    .responsive-swiper {
+      width: 100%;
+      max-width: 600px;     /* the original width you used */
+      aspect-ratio: 8 / 5;  /* keeps the same proportional height */
+      margin: 0 auto;       /* center the swiper */
+      position: relative;   /* required for arrows */
+    }
+
+    /* Images always scale properly */
+    .responsive-swiper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    /* Make arrows stay aligned even on small screens */
+    .swiper-button-next,
+    .swiper-button-prev {
+      color: #6C63FF;           /* or black depending on background */
+      transform: translateY(-50%);
+    }
+
+    /* Optional: smaller arrows on mobile */
+    @media (max-width: 500px) {
+      .swiper-button-next,
+      .swiper-button-prev {
+        scale: 0.8;
+      }
+    }
+    .color-box {
+      background-color: #e5e5e5; /* box background different from white */
+      padding: 16px 20px;
+      border-radius: 12px;
+      max-width: 600px;        /* optional: control width */
+      margin: 1.5rem auto;     /* center horizontally */
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* subtle shadow */
+    }
+    .color-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .color-list li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-swatch {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 28px; /* smaller for tablets */
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 26px; /* smaller for phones */
+      }
+    }
+    @media (max-width: 390px) {
+      h1 {
+        font-size: 24px; /* smaller for phones */
+      }
+    }
+    ::selection {
+      background: #083B4D;
+      color: white;
+    }
+
+    ::-moz-selection {
+      background: #083B4D;
+      color: white;
+    }
+    .cropped-wrapper {
+      width: 100%;
+      max-width: 90vw;
+      margin: 3vh auto;
+
+      /* Hide the cropped-away parts */
+      overflow: hidden;
+
+      /* You MUST set the height to show only the visible region */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Auto-detect height while still cropping 150px from each side */
+    .cropped-wrapper img {
+      width: calc(100% + 300px); /* add 150px crop to each side horizontally */
+
+      /* ADJUST THESE FOR PERFECT VISUAL CENTER */
+      margin-top: -215px;   /* crop more from top */
+      margin-bottom: -195px;/* crop less from bottom */
+
+      height: auto;
+      display: block;
+      border-radius: 8px;
+    }
+    /* ---------- NAVIGATION BAR ---------- */
+    .navbar {
+      width: 100%;
+      background-color: transparent;
+      box-shadow: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 1rem 0;
+      position: relative;
+      z-index: 1000;
+    }
+    a {
+        color: #EF476F;
+        font-weight: bold;
+    }
+
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;          /* ✅ wrap items if screen too narrow */
+      justify-content: center;  /* ✅ center items when wrapped */
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    .navbar li {
+      font-weight: bold;
+      font-size: 1.05rem;
+    }
+
+    .navbar a {
+      text-decoration: none;
+      color: #333;
+      transition: color 0.2s ease;
+      white-space: nowrap;      /* ✅ keeps each word from breaking */
+    }
+
+    .navbar a:hover {
+      color: #6C63FF;
+    }
+
+    /* Dropdown styling */
+    .language-select {
+      font-weight: bold;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      font-size: 1rem;
+      background-color: #ffffff;
+      cursor: pointer;
+    }
+
+    .language-select:hover {
+      border-color: #6C63FF;
+    }
+
+    /* ✅ Optional: make font smaller on very small screens */
+    @media (max-width: 500px) {
+      .navbar ul {
+        gap: 1rem;
+      }
+      .navbar a, .language-select {
+        font-size: 0.9rem;
+      }
+    }
+    
+    .dropdown {
+      position: relative;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    .dropdown-toggle {
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .dropdown-toggle:hover {
+      border-color: #6C63FF;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .dropdown-menu {
+      display: none;                  /* hidden by default */
+      position: absolute;
+      top: calc(100%);          /* appear just below toggle */
+      left: 0;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 100%;
+      z-index: 2000;
+    }
+
+    .dropdown-menu div {
+      padding: 0.5rem 0.8rem;
+      cursor: pointer;
+    }
+
+    .dropdown-menu div:hover {
+      background-color: #f0f0ff;      /* light hover color */
+    }
+
+    /* When open */
+    .dropdown.open .dropdown-menu {
+      display: block;
+    }
+
+html, body {
+  min-height: 100%;
+  height: auto;
+  margin: 0;
+  display: flex;
+  flex-direction: column; /* stack items vertically */
+  justify-content: flex-start; /* start from top */
+  align-items: center; /* center horizontally */
+  background: linear-gradient(to bottom, #ffffff, #ffffff);
+  font-family: Arial, sans-serif;
+}
+
+    .main-container {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      margin-top: 5vh;
+      width: 90vw;       /* leave 5% space on each side */
+      max-width: 1000px; /* optional, keeps it from getting too wide on desktop */
+    }
+
+.text-container {
+  width: 40vmin; /* same width as animation grid (3 boxes * 12vmin) */
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: #333;
+  margin-right: 35px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 5px;
+  width: 40vmin; /* 3 boxes of 12vmin each */
+  height: 40vmin;
+}
+    
+    @media (max-width: 500px) {
+      .text-container {
+        width: calc(66% - 10px); /* subtract small gap */
+        margin-right: 10px;       /* keep space between text and animation */
+        margin-left: 1vmin;
+      }
+
+      .container {
+        width: calc(33% - 10px);  /* subtract small gap */
+        height: auto;             /* maintain aspect ratio */
+        margin-right: 10vw;
+      }
+    }
+
+.box {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  width: 12vmin;
+  height: 12vmin;
+}
+
+.cell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.quarter {
+  width: 100%;
+  height: 100%;
+  border-top-left-radius: 100%;
+  transform-origin: center;
+  transition: transform 2s ease-in-out, opacity 10s ease;
+}
+
+.fade {
+  opacity: 0;
+}
+
+.locked {
+  pointer-events: none;
+}
+.project-description {
+  width: calc(40vmin + 35px + 40vmin); /* same total width as text + animation */
+  max-width: 90vw;
+  text-align: left;
+  margin: 5vh auto;
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+.project-description h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+    .project-description p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      background-color: transparent;
+
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+}
+.project-description ul {
+  font-size: 1.1rem;      /* same as .project-description p */
+  line-height: 1.6;       /* match the paragraph spacing */
+  margin-top: 1rem;       /* small space above the list */
+  margin-left: 2rem;      /* indent for bullets */
+  color: #333;            /* same text color */
+}
+
+.project-description li {
+  margin-bottom: 0.5rem;  /* small space between bullets */
+}
+.project-image-text-width {
+  width: calc(36vmin + 35px + 36vmin); /* same as .text-container width */
+  max-width: 90vw;
+  margin: 3vh auto; /* space above and below */
+  text-align: center; /* center the image */
+}
+
+.project-image-text-width img {
+  width: 90%;   /* scale to container width */
+  height: auto;  /* maintain aspect ratio */
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 8px; /* optional: nice rounded corners */
+}
+    
+    .project-image-text-width2 {
+      width: calc(36vmin + 35px + 36vmin); /* same as .text-container width */
+      max-width: 90vw;
+      margin: 3vh auto; /* space above and below */
+      text-align: center; /* center the image */
+    }
+
+    .project-image-text-width2 img {
+      width: 100%;   /* scale to container width */
+      height: auto;  /* maintain aspect ratio */
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 8px; /* optional: nice rounded corners */
+    }
+    
+    .project-image-text-width3 {
+      width: calc(36vmin + 35px + 36vmin); /* same as .text-container width */
+      max-width: 90vw;
+      margin: 3vh auto; /* space above and below */
+      text-align: center; /* center the image */
+    }
+
+    .project-image-text-width3 img {
+      width: 10%;   /* scale to container width */
+      height: auto;  /* maintain aspect ratio */
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 8px; /* optional: nice rounded corners */
+    }
+    
+    .social-footer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;               /* space between icons */
+      margin: 3rem 0;          /* space above and below footer */
+    }
+
+    .social-footer a img {
+      width: 30px;             /* size of each icon */
+      height: 30px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .social-footer a img:hover {
+      transform: scale(1.2);   /* slight zoom on hover */
+      opacity: 0.8;            /* subtle fade effect */
+    }
+</style>
+</head>
+<body>
+    <nav class="navbar">
+      <ul>
+        <li><a href="/">About</a></li>
+        <li><a href="/music">Music</a></li>
+        <li><a href="/design">Design</a></li>
+        <li><a href="/cryptography">Cryptography</a></li>
+        <li>
+            <div class="dropdown">
+              <div class="dropdown-toggle" id="selected-lang">English ▾</div>
+              <div class="dropdown-menu" id="language-menu">
+                <div data-value="en">English</div>
+                <div data-value="sv">Svenska</div>
+              </div>
+            </div>
+
+            <script>
+              const menuItems = document.querySelectorAll('#language-menu div');
+              menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                  const lang = item.dataset.value; // "en" or "sv"
+                  if (lang === 'en') {
+                    window.location.href = '/';
+                  } else {
+                    window.location.href = `/${lang}`;
+                  }
+                });
+              });
+            </script>
+        </li>
+      </ul>
+    </nav>
+<div class="main-container">
+  <div class="text-container">
+      <h1>Spotify Playlist Project</h1>
+      <p><i>November 15th, 2025</i></p>
+  </div>
+  <div class="container" id="container"></div>
+</div>
+
+<script>
+const colors = ["#6C63FF", "#4ECDC4", "#FFD166", "#EF476F", "#073B4C"];
+const boxesPerSide = 3;
+const container = document.getElementById('container');
+const circlePattern = {tl: 0, tr: 90, br: 180, bl: 270};
+
+function getCorner(row, col){
+  return (row===0 && col===0)?"tl":
+         (row===0 && col===1)?"tr":
+         (row===1 && col===0)?"bl":"br";
+}
+
+function createQuarter(row, col){
+  const q = document.createElement('div');
+  q.classList.add('quarter');
+  q.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+  q.dataset.corner = getCorner(row,col);
+  q.dataset.rotation = Math.floor(Math.random()*4)*90;
+  q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+  return q;
+}
+
+function isFullCircle(quarters){
+  const block = [quarters[0][0], quarters[0][1], quarters[1][0], quarters[1][1]];
+  return block.every(q => Number(q.dataset.rotation) === circlePattern[q.dataset.corner]);
+}
+
+function createBox(){
+  const box = document.createElement('div');
+  box.classList.add('box');
+  const quarters = [[],[]];
+  let fading = false;
+
+  for(let r=0;r<2;r++){
+    quarters[r] = [];
+    for(let c=0;c<2;c++){
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      const q = createQuarter(r,c);
+      cell.appendChild(q);
+      box.appendChild(cell);
+      quarters[r][c] = q;
+    }
+  }
+
+  // Avoid initial circle
+  while(isFullCircle(quarters)){
+    const r = Math.floor(Math.random()*2);
+    const c = Math.floor(Math.random()*2);
+    const q = quarters[r][c];
+    q.dataset.rotation = (Number(q.dataset.rotation)+90)%360;
+    q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+  }
+
+  // Spin each quarter independently at random intervals (2-15s)
+  function spinQuarterIndependently(q){
+    if(!q.classList.contains('locked')){
+      q.dataset.rotation = (Number(q.dataset.rotation)+90)%360;
+      q.style.transform = `rotate(${q.dataset.rotation}deg)`;
+    }
+    const nextInterval = Math.random()*25000 + 4000; // 2-15 seconds
+    setTimeout(()=>spinQuarterIndependently(q), nextInterval);
+  }
+
+  quarters.flat().forEach(q => spinQuarterIndependently(q));
+
+  // Check for full circle and replace
+  function checkAndReplaceCircles(){
+    if(!fading && isFullCircle(quarters)){
+      fading = true;
+      const block = [quarters[0][0], quarters[0][1], quarters[1][0], quarters[1][1]];
+      block.forEach(q => q.classList.add('fade','locked'));
+
+      setTimeout(()=>{
+        block.forEach((q,i)=>{
+          const row = Math.floor(i/2);
+          const col = i%2;
+          const newQ = createQuarter(row,col);
+          quarters[row][col].parentNode.replaceChild(newQ, quarters[row][col]);
+          quarters[row][col] = newQ;
+          spinQuarterIndependently(newQ);
+        });
+        fading = false;
+      },10000);
+    }
+    requestAnimationFrame(checkAndReplaceCircles);
+  }
+
+  checkAndReplaceCircles();
+  return box;
+}
+
+// Create 3x3 boxes
+for(let i=0;i<boxesPerSide*boxesPerSide;i++){
+  container.appendChild(createBox());
+}
+</script>
+<div class="project-description">
+    <div class="project-image-text-width2">
+        <img src="final_light5.png" alt="Updated UI">
+    </div>
+  <p>
+  This project is a Python app built with Flet that generates random Spotify playlists using the Spotify Web API. The original version of this project was created by another developer, who had implemented the core functionality, but left significant usability and trust gaps. The onboarding process required the user to directly edit the Python script, and their credentials were stored in plaintext. On top of this, the UI didn’t offer any feedback and the interaction patterns were outdated and not aligned with modern application workflows.
+  </p>
+  <p>
+  Here is what the original version looked like:
+  </p>
+  <div class="project-image-text-width">
+      <img src="original.png" alt="Original Version">
+  </div>
+  <p>
+  My role in this project was to redesign the end-to-end experience, including improving security, reducing friction, and modernizing the UI. My goal was to make this feel like a real, user-friendly application rather than a script for a developer.
+  </p>
+  <h2>
+  The Challenge:
+  </h2>
+  <p>The original app worked but was difficult to use and not intuitive. Users had to edit the Python script to authenticate, and the interface didn’t provide any feedback. The workflow was only accessible to developers and not regular users. The goal of this project was to make the application accessible and trustworthy, in order to make playlist generation accessible to a broader audience.</p>
+  <h2>
+  Problems and User Needs:
+  </h2>
+  <p><strong>Onboarding Friction: </strong>The onboarding process involved the user having to open up the Python script and manually type in their credentials into the code. This required technical knowledge and added unnecessary friction. This means that there would be a higher chance that the user would have to go through lots of trial and error in order to authenticate. Secondly, the script also wanted the user to add a custom redirect URI, however, Spotify had recently standardized this, making it an unnecessary extra and confusing step.</p>
+  <p><strong>Trust & Security: </strong>Since the user is required to enter the credentials into the plaintext of the script, they are not secure. Secondly, since the UI looks very outdated and does not have a good color scheme, this also lowers the user’s trust in the application.</p>
+  <p><strong>Usability & Feedback: </strong>There is no support for securely storing the login, so if someone doesn’t want their credentials permanently stored in plaintext, they will need to enter them again every time they reopen the app. The app also doesn’t handle errors gracefully, and there are no indications of loading states in the app.</p>
+  <p><strong>Nielsen's Heuristics: </strong>There is some debate in UX on whether it is necessary to do an analysis using Nielsen’s 10 Heuristics, however, I felt that this was valuable for this project because it allowed me to identify many ways in which the UI of this app needed improvement. These heuristics specifically made it so that it was easier for me to be able to identify issues related to error prevention, visibility of system status and user control. The following principles were violated:</p>
+  <ul>
+    <li><strong>Error prevention:</strong> No validation for number input</li>
+    <li><strong>Visibility of system status:</strong> No loading indicators or feedback</li>
+    <li><strong>Aesthetic & minimalist design:</strong> Very outdated interface</li>
+    <li><strong>User control & freedom:</strong> No logout functionality</li>
+    <li><strong>Recognition over recall:</strong> Credentials had to be retyped every time</li>
+  </ul>
+  <h2>Research:</h2>
+  <p><strong>Building an Interactive Login: </strong>To reduce friction in onboarding, I decided to modernize the sign-in process to make it intuitive. Research shows that unnecessary friction can also lower conversion (FullStory, 2021). The original version of this app stored credentials in plaintext, which is insecure (MITRE, 2006), and should instead be encrypted and stored in the keyring of the device (Read the Docs, 2025). To solve this, I designed an interactive login form that also removed the redirect URI (Spotify for Developers, 2025).</p>
+  <p>
+  <strong>Designing an Emotionally Impactive UI: </strong>Users have varying preferences on whether they prefer dark mode or light mode (NNG, 2023). Allowing both improves accessibility, since some users find that light mode is too harsh. On top of this, color choices influence emotional perception, such as teal/aqua being associated with clarity and freshness, and dark backgrounds being associated with sophistication (Smashing Magazine, 2010). This allowed me to design the app’s theme, color palette, and support for dark/light mode. The visual appeal in the new design I made also makes the software perceived as easier to use, and since it looks better, users will be more tolerant of minor usability issues (NNG, 2024).
+  </p>
+  <p>
+  <strong>Providing Real-Time Feedback: </strong>Loading indicators and other methods of real-time feedback reduce uncertainty, prevent repeated actions and increase trust (Material Design, 2025). Based off of this, I incorporated spinners, feedback messages, and smoother transitions in the login and playlist generation.
+  </p>
+  <h2>Interaction Flow:</h2>
+  <div class="project-image-text-width">
+      <img src="Flowchart.png" alt="Interaction Flow">
+  </div>
+  <p>This interaction flow shows the final experience of generating a playlist with this app, from the moment the user opens the app to viewing the playlist on Spotify. It has significantly less friction than the original flow.</p>
+  <h2>Wireframes:</h2>
+  <div class="responsive-iframe">
+    <iframe src="https://embed.figma.com/design/xlz54NLH9Jf6GdR0U4vEmI/Untitled?node-id=0-1&embed-host=share" allowfullscreen></iframe>
+  </div>
+  <p>I drew some quick wireframes of how I thought the window should be formatted.</p>
+  <h2>Design Solutions:</h2>
+  <p><strong>Improving Visual Clarity: </strong>In the original, the UI looked outdated and consistent. Therefore, I made the typography larger, centered the form layout, made clear labels and used a consistent color scheme. These changes improved clarity and readability, and laid the foundation for a more trustworthy experience.</p>
+  <p><strong>Building a Trustworthy User Experience: </strong>Originally, the app required users to enter their credentials in plaintext and go through lots of trial and error. In order to deal with this, I realized I had to focus on not only improving the security, but also the sense of trust, predictability and transparency. These were some of the solutions that I created in order to fix this:</p>
+  <ul>
+    <li>Rounded corners and aesthetic UI.</li>
+    <li>Stores credentials in keyring, which improves security.</li>
+    <li>Automatically detects system light/dark mode.</li>
+    <li>This app is modern, which makes the user view it as a real application rather than some random script.</li>
+    <li>Shows spinners when things are loading, and doesn't freeze, so users know something is happening.</li>
+    <li>The flow is similar to real SaaS apps, which creates predictability.</li>
+    <li>The logout button allows users to delete all credentials and tokens, which makes the app feel more honest and gives the user more control.</li>
+  </ul>
+  <p>These changes make it so that the app feels more professional, predictable and safe to use.</p>
+  <p><strong>Making Playlist Generation Intuitive: </strong>In the original, the fields on the Playlist Generation page had pointed corners and provided no feedback to the user, so if there was an error, it would be very challenging for the user to debug. Secondly, once a playlist was generated, in order for the user to find this playlist, they would have to manually open up Spotify and go to the Playlist section, in which they would have to then search for their playlist. Therefore, I implemented rounded, styled text fileds, success/error messages, better labeling, spacing, and a clickable link to the playlist. Also, the app does not crash with invalid input. As a result, the playlist generation flow became more intuitive, errors are easier to fix, and users can immediately access their playlists.</p>
+  <p><strong>Designing a Cohesive Color Scheme: </strong>Since the interface didn’t feel modern or expressive, I designed a color scheme that worked consistently across the light and dark theme.</p>
+  <div class="color-box">
+  <ul class="color-list">
+    <li><span class="color-swatch" style="background-color: #6200EE;"></span> and <span class="color-swatch" style="background-color: #03DAC6;"></span> are used on both themes.</li>
+    <li><span class="color-swatch" style="background-color: #6200EE;"></span> is psychologically associated with creativity and inspiration.</li>
+    <li><span class="color-swatch" style="background-color: #03DAC6;"></span> is associated with freshness and clarity.</li>
+    <li><span class="color-swatch" style="background-color: #242331;"></span> is used for the dark theme and improves perceived sophistication.</li>
+    <li><span class="color-swatch" style="background-color: #FFFFFF;"></span> is used for the light theme and feels clean and familiar.</li>
+  </ul>
+  </div>
+  <p>As a result, the app now feels more expressive, visually cohesive and professional, which helps users feel more confident using the interface, and improves perceived quality.</p>
+  <h2>Final Experience:</h2>
+  <h3>The Light Mode Experience:</h3>
+  <div class="swiper responsive-swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide"><img src="final_light1.png"></div>
+      <div class="swiper-slide"><img src="final_light2.png"></div>
+      <div class="swiper-slide"><img src="final_light3.png"></div>
+      <div class="swiper-slide"><img src="final_light4.png"></div>
+      <div class="swiper-slide"><img src="final_light5.png"></div>
+    </div>
+
+    <!-- Arrows -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+
+    <!-- Pagination (dots) -->
+    <div class="swiper-pagination"></div>
+  </div>
+  <h3>The Dark Mode Experience:</h3>
+  <div class="swiper responsive-swiper">
+    <div class="swiper-wrapper">
+      <div class="swiper-slide"><img src="final_dark1.png"></div>
+      <div class="swiper-slide"><img src="final_dark2.png"></div>
+      <div class="swiper-slide"><img src="final_dark3.png"></div>
+      <div class="swiper-slide"><img src="final_dark4.png"></div>
+      <div class="swiper-slide"><img src="final_dark5.png"></div>
+    </div>
+
+    <!-- Arrows -->
+    <div class="swiper-button-next"></div>
+    <div class="swiper-button-prev"></div>
+
+    <!-- Pagination (dots) -->
+    <div class="swiper-pagination"></div>
+  </div>
+  <p>When the user opens the app, they have clear instructions, where they can see that they have to enter in their credentials, and when they do so, the continue button provides them with loading feedback. Then, they are prompted to generate a playlist, and get more loading feedback from the continue button. Then, they have feedback telling them that the playlist has been generated, and they can click on the 'Open Playlist' button in order to view the playlist on Spotify.</p>
+  <p>I thought that it was important to keep the UI simple throughout the whole process and not to add any more features than necessary, so users could easily navigate and not be distracted. It makes it feel really straightforward.</p>
+  
+  <script>
+    new Swiper('.swiper', {
+      loop: false,
+      pagination: { el: '.swiper-pagination', clickable: true },
+      navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+      autoplay: false
+    });
+  </script>
+  
+  <p>
+    You can view this project <a href="https://github.com/joelhagvall/spotify-random-playlist-generator" target="_blank" rel="noopener noreferrer">here</a>.
+  </p>
+  <h2>Reflection:</h2>
+<p>I think that this application was significantly improved for users after I made the changes that I made, since the user experience is much more simplified, and the UI is polished.
+</p>
+<p>
+<strong>Considering Other Edge Cases: </strong>If I were to revisit this project in the future, I think that it would be important to work on some other UX aspects, specifically in relation to potential edge cases. For example, the application assumes that the user already knows how to get their client ID, client secret and username from Spotify, however, some users could be confused at this part, which means that the application could benefit with an info toggle on the input fields.
+</p>
+<p>
+<strong>Potential Accessibility Edge Cases: </strong>On top of this, I could have also added other settings that would have increased accessibility, such as the ability to toggle languages, manually switch between dark and light mode, or have touch ID authentication for Mac users. However, the constraint that stopped me from considering this at the time I made it was that I wanted to first make the application be very simple, in order to not overwhelm the user, and also provide visually aesthetic minimalism.
+</p>
+<p>
+<strong>Constraints on Implementing These Solutions: </strong>In order to add all of these features, I would have had to consider how I would go about adding these features in the first place, and it would have either came from adding a settings button or just having the feature as a drop-down menu on the page itself. If there was a settings button, it would have required the user to click on it and go to another page, edit stuff in that page, and then go back, which could create mild friction. However, if settings such as manual dark/light mode toggle were on the page itself, this could also create clutter. My choice to keep the interface minimal did allow for a polished product with a strong UI, but it did also limit accessibility.
+</p>
+<p>
+<strong>Building the Final Application: </strong>In order to create the designed experience, I built a fully functioning desktop app using Python and Flet. Even though this app is not production ready, I was able to test the authentication flows, loading feedback, error handling and the logic for creating playlists. Since I implemented the prototype myself, I intentionally focused on creating the redesigned experience. If I were to work in a cross-functional environment with an engineer, I would implement a wider range of features, such as more accessibility features and language toggles. For this project, my main focus was on clarity and UX validation.
+</p>
+<p>
+<strong>Constraints of Flet: </strong>In the end of the experience, when a playlist is generated, there is a clickable link to that playlist that appears in the UI that says ‘Open Playlist’, which allows the user to view the playlist on Spotify. It would have been better if this app allowed the user to preview the playlist in the app itself, so the user wouldn’t have to open any link, which could break their flow. However, I found out when I got to this part that Flet doesn’t allow this to happen, meaning that there was no way to actually program this into the application. Because of this, the only way to add this feature would be to rewrite the entire application using a different module than Flet, or even switching to a different language besides Python.
+</p>
+  <h2>References:</h2>
+  <p style="font-size: 1em;">
+  FullStory. (2021). <i>User Friction and Conversion.</i> <a href="https://www.fullstory.com/blog/user-friction/" target="_blank" rel="noopener noreferrer">https://www.fullstory.com/blog/user-friction/</a>.
+  </p>
+  <p style="font-size: 1em;">
+  MITRE. (2006). <i>CWE-256: Plaintext Storage of a Password.</i> <a href="https://cwe.mitre.org/data/definitions/256.html" target="_blank" rel="noopener noreferrer">https://cwe.mitre.org/data/definitions/256.html</a>.
+  </p>
+  <p style="font-size: 1em;">
+  Python Keyring Docs. (n.d.). <i>Keyring Documentation.</i> <a href="https://keyring.readthedocs.io/en/latest/" target="_blank" rel="noopener noreferrer">https://keyring.readthedocs.io/en/latest/</a>.
+  </p>
+  <p style="font-size: 1em;">
+  Spotify for Developers. (2025). <i>Redirect URI Guidelines.</i> <a href="https://developer.spotify.com/documentation/web-api/concepts/redirect_uri" target="_blank" rel="noopener noreferrer">https://developer.spotify.com/documentation/web-api/concepts/redirect_uri</a>.
+  </p>
+  <p style="font-size: 1em;">
+  Nielsen Norman Group. (2024). <i>10 Usability Heuristics for User Interface Design.</i> <a href="https://www.nngroup.com/articles/ten-usability-heuristics/" target="_blank" rel="noopener noreferrer">https://www.nngroup.com/articles/ten-usability-heuristics/</a>.
+  </p>
+  <p style="font-size: 1em;">
+  Google Material Design. (2025). <i>Progress Indicators.</i> <a href="https://m3.material.io/components/progress-indicators/overview" target="_blank" rel="noopener noreferrer">https://m3.material.io/components/progress-indicators/overview</a>.
+  </p>
+  <p style="font-size: 1em;">
+  Nielsen Norman Group. (2024). <i>The Aesthetic‑Usability Effect.</i> <a href="https://www.nngroup.com/articles/aesthetic-usability-effect/" target="_blank" rel="noopener noreferrer">https://www.nngroup.com/articles/aesthetic-usability-effect/</a>.
+  </p>
+  <p style="font-size: 1em;">
+  Nielsen Norman Group. (2023). <i>Dark Mode: User Preferences & Issues.</i> <a href="https://www.nngroup.com/articles/dark-mode-users-issues/" target="_blank" rel="noopener noreferrer">https://www.nngroup.com/articles/dark-mode-users-issues/</a>.
+  </p>
+  <p style="font-size: 1em;">
+  Smashing Magazine. (2010). <i>Color Theory for Designers: The Meaning of Color.</i> <a href="https://www.smashingmagazine.com/2010/01/color-theory-for-designers-part-1-the-meaning-of-color/" target="_blank" rel="noopener noreferrer">https://www.smashingmagazine.com/2010/01/color-theory-for-designers-part-1-the-meaning-of-color/</a>.
+  </p>
+</div>
+<script>
+// Custom language dropdown
+const dropdown = document.querySelector('.dropdown');
+const toggle = document.getElementById('selected-lang');
+const menu = document.getElementById('language-menu');
+
+toggle.addEventListener('click', () => {
+  dropdown.classList.toggle('open');
+});
+
+menu.addEventListener('click', (e) => {
+  if (e.target.dataset.value) {
+    const selected = e.target.textContent;
+    toggle.textContent = selected + ' ▾';
+    dropdown.classList.remove('open');
+    // Optional: do something when language changes
+    // e.g. console.log('Language set to:', e.target.dataset.value);
+  }
+});
+
+// Close dropdown if clicking outside
+document.addEventListener('click', (e) => {
+  if (!dropdown.contains(e.target)) {
+    dropdown.classList.remove('open');
+  }
+});
+</script>
+<footer class="social-footer">
+  <a href="https://soundcloud.com/tornicane" target="_blank" rel="noopener noreferrer">
+    <img src="soundcloud.svg" alt="SoundCloud">
+  </a>
+  <a href="https://open.spotify.com/artist/7JYT6Dvcako2aN1udZTnIn?si=RDQibv9wSbq7dOclRhCzLw" target="_blank" rel="noopener noreferrer">
+    <img src="spotify.svg" alt="Spotify">
+  </a>
+  <a href="https://instagram.com/tornicane" target="_blank" rel="noopener noreferrer">
+    <img src="instagram.svg" alt="Instagram">
+  </a>
+  <a href="https://github.com/devowen0" target="_blank" rel="noopener noreferrer">
+    <img src="github.svg" alt="GitHub">
+  </a>
+  <a href="https://www.linkedin.com/in/owen-yanevich-2b7278307/" target="_blank" rel="noopener noreferrer">
+    <img src="linkedin.svg" alt="LinkedIn">
+  </a>
+  <a href="https://drive.proton.me/urls/N9TQ3TSP08#VrLgpvnuSO89" target="_blank" rel="noopener noreferrer">
+    <img src="proton-drive.svg" alt="Proton Drive">
+  </a>
+</footer>
+
+</body>
+</html>
